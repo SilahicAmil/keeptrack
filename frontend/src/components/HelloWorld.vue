@@ -17,11 +17,6 @@ onMounted(async () => {
   Events.On("tickets-updated", (newTickets) => {
     tickets.value = newTickets.data;
   });
-
-  // Fetch initial tickets
-  const data = await AzureDevopsService.FetchAssignedTickets();
-
-  tickets.value = data;
 });
 </script>
 

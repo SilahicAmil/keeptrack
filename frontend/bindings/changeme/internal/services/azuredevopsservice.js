@@ -20,6 +20,15 @@ export function FetchAssignedTickets() {
 }
 
 /**
+ * @returns {$CancellablePromise<azuredevops$0.Ticket[]>}
+ */
+export function FetchAssignedTicketsCache() {
+    return $Call.ByID(2655116166).then(/** @type {($result: any) => any} */(($result) => {
+        return $$createType1($result);
+    }));
+}
+
+/**
  * @returns {$CancellablePromise<void>}
  */
 export function Start() {

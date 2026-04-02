@@ -1,6 +1,7 @@
 package azuredevops
 
 import (
+	"changeme/store"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -167,4 +168,35 @@ func (c *AzureDevopsClient) FetchAssignedTickets() ([]Ticket, error) {
 
 	return tickets, nil
 
+}
+
+func (c *AzureDevopsClient) FetchAssignedTicketsCache() ([]Ticket, error) {
+
+	query := `SELECT * from tickets`
+
+	res, err := store.DB.Query(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Close()
+
+	var tickets []Ticket
+	for res.Next() {
+		var t Ticket
+		err := res.Scan(&t.ID, &t.Description, &t.Title, &t.State, &t.PRLinks)
+		if err != nil {
+			return nil, err
+		}
+		tickets = append(tickets, t)
+	}
+
+	err = res.Err()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return tickets, nil
 }

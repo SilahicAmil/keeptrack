@@ -2,6 +2,7 @@ package main
 
 import (
 	"changeme/internal/services"
+	"changeme/store"
 	"context"
 	"embed"
 	_ "embed"
@@ -29,6 +30,13 @@ func init() {
 // and starts a goroutine that emits a time-based event every second. It subsequently runs the application and
 // logs any error that might occur.
 func main() {
+
+	_, err := store.NewSQLiteStore()
+	if err != nil {
+		log.Fatal("Failed to initialize SQLite DB:", err)
+	}
+
+	// defer sqliteStore.Close() // if you add Close()
 
 	azure := services.NewAzureDevopsService()
 	// Create a new Wails application by providing the necessary options.
@@ -75,7 +83,7 @@ func main() {
 	azure.Start(context.Background())
 
 	// Run the application. This blocks until the application has been exited.
-	err := app.Run()
+	err = app.Run()
 
 	// If an error occurred while running the application, log it and exit.
 	if err != nil {

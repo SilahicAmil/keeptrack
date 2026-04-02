@@ -45,4 +45,10 @@ func (s *AzureDevopsService) FetchAssignedTickets() ([]azuredevops.Ticket, error
 	return s.client.FetchAssignedTickets()
 }
 
+func (s *AzureDevopsService) FetchAssignedTicketsCache() ([]azuredevops.Ticket, error) {
+
+	return s.client.FetchAssignedTicketsCache()
+
+}
+
 func (s *AzureDevopsService) fetchAndUpdate() {}

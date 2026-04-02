@@ -7,7 +7,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type AzureDevopsClient struct{}
+type AzureDevopsClient struct {
+}
 
 func (c *AzureDevopsClient) loadAndCreatePATAuth() (string, error) {
 
