@@ -1,16 +1,58 @@
+<script setup lang="ts">
+import router from "@/router";
+import { ValidateConfig } from "../../bindings/changeme/internal/services/azuredevopsservice";
+import { ref } from "vue";
+
+const PAT = ref("");
+const Org = ref("");
+const Project = ref("");
+
+const loading = ref("");
+
+async function checkPat() {
+  var jsonPostObj = {
+    pat: PAT.value,
+    org: Org.value,
+    project: Project.value,
+  };
+
+  console.log(jsonPostObj);
+  try {
+    loading.value = "Loading Dashboard. Please wait...";
+    await ValidateConfig(jsonPostObj);
+
+    loading.value = "";
+
+    router.push("/dashboard");
+  } catch (e) {
+    console.log(e);
+  }
+}
+</script>
+
 <template>
+  <!-- TODO: Make the UI for this like a login page -->
   <h1>Azure Devops setup</h1>
 
-  <!-- Step 1 - Ask for PAT -->
-  <!-- Loading spinner while async calls -->
-  <!-- Pre load all the data for the dashboard so we have it -->
-  <!-- Only expose relevant errors. Such as expired token, unable to auth and etc -->
-  <!-- Once Complete render Step 2 -->
-  <!-- Step 2 - Populate dropdown with projects/teams -->
-  <!-- User selects their project/team. For now this is a one and done deal. Later to be in setting -->
-  <!-- Once complete render Step 3 -->
-  <!-- Step 3 - Have user verify all data -->
-  <!-- This includes. Project / Team and User Name/Email -->
-  <!-- Show like `Complete` button or something -->
-  <!-- Once user hits `Complete` -> Show dashboard -->
+  <p v-if="loading">{{ loading }}</p>
+
+  <!-- Step 1 - Ask for PAT + Org + Team -->
+  <input
+    type="password"
+    placeholder="Enter your PAT. Or else..."
+    v-model="PAT"
+  />
+  <input
+    type="text"
+    placeholder="Enter your Organization. Or else..."
+    v-model="Org"
+  />
+  <input
+    type="text"
+    placeholder="Enter your Project. Or else..."
+    v-model="Project"
+  />
+  <button @click="checkPat">Complete</button>
+  <!-- Loading spinner component while async calls -->
+  <!-- Redirect to dashboard. With "pre-loaded" data. -->
 </template>

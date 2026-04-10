@@ -50,17 +50,26 @@ func NewSQLiteStore() (*SQLiteStore, error) {
 }
 
 func (s *SQLiteStore) init() error {
-	query := `
+	queries := []string{
+		`
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL
     );
-    `
-
-	_, err := s.db.Exec(query)
-
-	if err != nil {
-		return err
+    `,
+		`
+	CREATE TABLE IF NOT EXISTS config (
+			id INTEGER PRIMARY KEY CHECK (id = 1),
+			pat TEXT NOT NULL,
+			org TEXT NOT NULL,
+			project TEXT NOT NULL)`,
 	}
+
+	for _, q := range queries {
+		if _, err := s.db.Exec(q); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

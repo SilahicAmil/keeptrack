@@ -2,6 +2,12 @@ package azuredevops
 
 // Structs for PR, Tickets, Reviewer, Comments, Status/Column and anything else
 
+type Config struct {
+	PAT     string `json:"pat"`
+	Org     string `json:"org"`
+	Project string `json:"project"`
+}
+
 type Ticket struct {
 	ID          int      `json:"ID"`
 	Title       string   `json:"Title"`
