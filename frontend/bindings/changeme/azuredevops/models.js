@@ -6,6 +6,48 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
+export class Config {
+    /**
+     * Creates a new Config instance.
+     * @param {Partial<Config>} [$$source = {}] - The source object to create the Config.
+     */
+    constructor($$source = {}) {
+        if (!("pat" in $$source)) {
+            /**
+             * @member
+             * @type {string}
+             */
+            this["pat"] = "";
+        }
+        if (!("org" in $$source)) {
+            /**
+             * @member
+             * @type {string}
+             */
+            this["org"] = "";
+        }
+        if (!("project" in $$source)) {
+            /**
+             * @member
+             * @type {string}
+             */
+            this["project"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Config instance from a string or object.
+     * @param {any} [$$source = {}]
+     * @returns {Config}
+     */
+    static createFrom($$source = {}) {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new Config(/** @type {Partial<Config>} */($$parsedSource));
+    }
+}
+
 export class Ticket {
     /**
      * Creates a new Ticket instance.

@@ -52,3 +52,11 @@ func (s *AzureDevopsService) FetchAssignedTicketsCache() ([]azuredevops.Ticket, 
 }
 
 func (s *AzureDevopsService) fetchAndUpdate() {}
+
+func (s *AzureDevopsService) ValidateConfig(cfg azuredevops.Config) error {
+	return s.client.ValidateConfig(cfg)
+}
+
+func (s *AzureDevopsService) StoreConfig(cfg azuredevops.Config) error {
+	return s.client.StoreConfig(cfg)
+}

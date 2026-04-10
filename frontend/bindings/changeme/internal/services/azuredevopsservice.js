@@ -35,6 +35,22 @@ export function Start() {
     return $Call.ByID(2140409555);
 }
 
+/**
+ * @param {azuredevops$0.Config} cfg
+ * @returns {$CancellablePromise<void>}
+ */
+export function StoreConfig(cfg) {
+    return $Call.ByID(1270630292, cfg);
+}
+
+/**
+ * @param {azuredevops$0.Config} cfg
+ * @returns {$CancellablePromise<void>}
+ */
+export function ValidateConfig(cfg) {
+    return $Call.ByID(4044659485, cfg);
+}
+
 // Private type creation functions
 const $$createType0 = azuredevops$0.Ticket.createFrom;
 const $$createType1 = $Create.Array($$createType0);

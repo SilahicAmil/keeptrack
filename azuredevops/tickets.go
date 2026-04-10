@@ -12,45 +12,6 @@ import (
 
 // HTTP Client, Auth, Base Request Logic
 
-// func (c *AzureDevopsTicket) FetchCurrentUser() (*CurrentUser, error) {
-
-// 	url := "https://app.vssps.visualstudio.com/_apis/profile/profiles/me?api-version=7.1"
-
-// 	req, err := http.NewRequest("GET", url, nil)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	err = godotenv.Load()
-
-// 	if err != nil {
-// 		log.Fatal("Error loading .env file")
-// 	}
-
-// 	azPat := os.Getenv("AZURE_PAT")
-// 	auth := base64.StdEncoding.EncodeToString([]byte(":" + azPat))
-
-// 	req.Header.Set("Authorization", "Basic "+auth)
-
-// 	resp, err := http.DefaultClient.Do(req)
-
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	defer resp.Body.Close()
-
-// 	var user CurrentUser
-// 	err = json.NewDecoder(resp.Body).Decode(&user)
-
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return &user, nil
-
-// }
-
 func (c *AzureDevopsClient) queryAssignedWorkItems() ([]int, error) {
 
 	url := "https://dev.azure.com/swagatronmaximum/keeptrack/_apis/wit/wiql?api-version=7.1"
