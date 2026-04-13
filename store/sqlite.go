@@ -1,6 +1,8 @@
 package store
 
 import (
+	"changeme/azuredevops"
+	"changeme/config"
 	"database/sql"
 	"os"
 	"path/filepath"
@@ -62,7 +64,20 @@ func (s *SQLiteStore) init() error {
 			id INTEGER PRIMARY KEY CHECK (id = 1),
 			pat TEXT NOT NULL,
 			org TEXT NOT NULL,
-			project TEXT NOT NULL)`,
+			project TEXT NOT NULL,
+			email TEXT NOT NULL,
+			display_name TEXT NOT NULL)`,
+		`
+	CREATE TABLE IF NOT EXISTS tickets (
+		id INTEGER PRIMARY KEY,
+		title TEXT,
+		state TEXT,
+		tags TEXT,
+		assigned_to TEXT,
+		is_assigned_to_me BOOLEAN,
+		changed_date TEXT,
+		last_notified_date TEXT
+	)`,
 	}
 
 	for _, q := range queries {
@@ -72,4 +87,24 @@ func (s *SQLiteStore) init() error {
 	}
 
 	return nil
+}
+
+func (s *SQLiteStore) StoreConfig(cfg config.CFG) {
+	// Insert into config
+}
+
+func (s *SQLiteStore) SaveUser(user azuredevops.CurrentUser) error {
+
+	query := `
+		UPDATE config
+		SET email = ?, display_name = ?
+		WHERE id = 1
+	`
+
+	_, err := s.db.Exec(query, user.Email, user.DisplayName)
+	return err
+}
+
+func (s *SQLiteStore) SaveTickets(tickets []azuredevops.Ticket) {
+	// insert info tickets
 }

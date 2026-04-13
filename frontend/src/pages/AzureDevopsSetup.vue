@@ -18,10 +18,16 @@ async function checkPat() {
 
   console.log(jsonPostObj);
   try {
-    loading.value = "Loading Dashboard. Please wait...";
+    loading.value = "Validating Configuration. Please Wait.";
     await ValidateConfig(jsonPostObj);
-
-    loading.value = "";
+    // If validated
+    // Then FetchUserInfo()
+    // If user returns
+    // Then SaveUserInfo()
+    // If saved
+    // Then FetchAssignTickets()
+    // If valid return
+    // Route to /dasboard and send FetchAssignTickets data with it
 
     router.push("/dashboard");
   } catch (e) {

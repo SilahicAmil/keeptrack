@@ -14,7 +14,8 @@ import (
 
 func (c *AzureDevopsClient) queryAssignedWorkItems() ([]int, error) {
 
-	url := "https://dev.azure.com/swagatronmaximum/keeptrack/_apis/wit/wiql?api-version=7.1"
+	base := fmt.Sprintf("https://dev.azure.com/%s/%s", c.cfg.Org, c.cfg.Project)
+	url := base + "/_apis/wit/wiql?api-version=7.1"
 
 	query := `{
 		"query": "SELECT [System.Id], [System.Title] FROM WorkItems WHERE [System.AssignedTo] = @Me AND [System.State] <> 'Closed' ORDER BY [System.ChangedDate] DESC"
@@ -26,7 +27,7 @@ func (c *AzureDevopsClient) queryAssignedWorkItems() ([]int, error) {
 		return nil, err
 	}
 
-	auth, err := c.loadAndCreatePATAuth()
+	auth := c.authHeader
 
 	if err != nil {
 		return nil, err
@@ -67,12 +68,20 @@ func (c *AzureDevopsClient) queryAssignedWorkItemsData() ([]Ticket, error) {
 
 	idString := strings.Trim(strings.Replace(fmt.Sprint(ids), " ", ",", -1), "[]")
 
-	baseUrl := "https://dev.azure.com/swagatronmaximum/keeptrack/_apis/wit/workitems"
-	idURL := "?ids=" + idString
-	fieldsURL := "&fields=System.Id,System.Title,System.State,System.Description,System.WorkItemType"
-	apiVerURL := "&api-version=7.1"
+	// Sprintf the below. use c.cfg.project and org
 
-	url := baseUrl + idURL + fieldsURL + apiVerURL
+	baseURL := fmt.Sprintf(
+		"https://dev.azure.com/%s/%s/_apis/wit/workitems",
+		c.cfg.Org,
+		c.cfg.Project,
+	)
+
+	url := fmt.Sprintf(
+		"%s?ids=%s&fields=System.Id,System.Title,System.State,System.Description,System.WorkItemType&api-version=7.1",
+		baseURL,
+		idString,
+	)
+
 	fmt.Println(url)
 	req, err := http.NewRequest("GET", url, nil)
 
@@ -80,7 +89,7 @@ func (c *AzureDevopsClient) queryAssignedWorkItemsData() ([]Ticket, error) {
 		return nil, err
 	}
 
-	auth, err := c.loadAndCreatePATAuth()
+	auth := c.authHeader
 
 	if err != nil {
 		return nil, err
