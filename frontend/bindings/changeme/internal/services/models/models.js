@@ -6,6 +6,48 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
+export class CurrentUser {
+    /**
+     * Creates a new CurrentUser instance.
+     * @param {Partial<CurrentUser>} [$$source = {}] - The source object to create the CurrentUser.
+     */
+    constructor($$source = {}) {
+        if (!("id" in $$source)) {
+            /**
+             * @member
+             * @type {string}
+             */
+            this["id"] = "";
+        }
+        if (!("displayName" in $$source)) {
+            /**
+             * @member
+             * @type {string}
+             */
+            this["displayName"] = "";
+        }
+        if (!("emailAddress" in $$source)) {
+            /**
+             * @member
+             * @type {string}
+             */
+            this["emailAddress"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new CurrentUser instance from a string or object.
+     * @param {any} [$$source = {}]
+     * @returns {CurrentUser}
+     */
+    static createFrom($$source = {}) {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new CurrentUser(/** @type {Partial<CurrentUser>} */($$parsedSource));
+    }
+}
+
 export class Ticket {
     /**
      * Creates a new Ticket instance.

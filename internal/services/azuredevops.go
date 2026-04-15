@@ -41,10 +41,10 @@ func (s *AzureDevopsService) Start(ctx context.Context) {
 	// })
 }
 
-func (s *AzureDevopsService) FetchAssignedTickets() ([]models.Ticket, error) {
-	tickets, _ := s.client.FetchAssignedTickets()
+func (s *AzureDevopsService) FetchAssignedTickets(user *models.CurrentUser) ([]models.Ticket, error) {
+	tickets, _ := s.client.FetchAssignedTickets(user)
 	fmt.Println("start up ", tickets)
-	return s.client.FetchAssignedTickets()
+	return s.client.FetchAssignedTickets(user)
 }
 
 func (s *AzureDevopsService) FetchAssignedTicketsCache() ([]models.Ticket, error) {
@@ -81,7 +81,7 @@ func (s *AzureDevopsService) InitializeApp(cfg config.AzureCFG) ([]models.Ticket
 		return nil, err
 	}
 
-	tickets, err := s.client.FetchAssignedTickets()
+	tickets, err := s.client.FetchAssignedTickets(user)
 	if err != nil {
 		return nil, err
 	}

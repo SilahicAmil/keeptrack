@@ -86,7 +86,7 @@ func getAssignedTo(fields map[string]any) string {
 	return ""
 }
 
-func (c *AzureDevopsClient) queryAssignedWorkItemsData() ([]models.Ticket, error) {
+func (c *AzureDevopsClient) queryAssignedWorkItemsData(user *models.CurrentUser) ([]models.Ticket, error) {
 
 	ids, err := c.queryAssignedWorkItems()
 	if err != nil {
@@ -145,29 +145,31 @@ func (c *AzureDevopsClient) queryAssignedWorkItemsData() ([]models.Ticket, error
 
 	for _, item := range result.Value {
 
+		assignedTo := getAssignedTo(item.Fields)
 		fmt.Println(strip.StripTags(getField(item.Fields, "System.Description")))
 		tickets = append(tickets, models.Ticket{
-			ID:          item.ID,
-			Title:       getField(item.Fields, "System.Title"),
-			State:       getField(item.Fields, "System.State"),
-			Description: strip.StripTags(getField(item.Fields, "System.Description")),
-			Tags:        getField(item.Fields, "System.Tags"),
-			AssignedTo:  getAssignedTo(item.Fields),
-			ChangedDate: getField(item.Fields, "System.ChangedDate"),
+			ID:             item.ID,
+			Title:          getField(item.Fields, "System.Title"),
+			State:          getField(item.Fields, "System.State"),
+			Description:    strip.StripTags(getField(item.Fields, "System.Description")),
+			Tags:           getField(item.Fields, "System.Tags"),
+			AssignedTo:     assignedTo,
+			IsAssignedToMe: assignedTo == user.DisplayName,
+			ChangedDate:    getField(item.Fields, "System.ChangedDate"),
 		})
 	}
 
 	return tickets, nil
 }
 
-func (c *AzureDevopsClient) FetchAssignedTickets() ([]models.Ticket, error) {
+func (c *AzureDevopsClient) FetchAssignedTickets(user *models.CurrentUser) ([]models.Ticket, error) {
 
 	// Load PAT from .env
 	// query azure devops
 	// format into []Ticket
 	// and return
 
-	tickets, err := c.queryAssignedWorkItemsData()
+	tickets, err := c.queryAssignedWorkItemsData(user)
 
 	if err != nil {
 		return nil, err
