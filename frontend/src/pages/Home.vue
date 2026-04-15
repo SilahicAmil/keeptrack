@@ -6,9 +6,8 @@ import Button from "../components/ui/Button.vue";
 const tickets = ref([]);
 
 onMounted(async () => {
-  Events.On("tickets-updated", (newTickets) => {
-    tickets.value = newTickets.data;
-  });
+  // If we have any tickets in cache
+  // Just redirect to dashboard
 });
 </script>
 
@@ -34,19 +33,5 @@ onMounted(async () => {
         >
       </div>
     </div>
-
-    <!-- TODO: Remove Later. This is for testing only -->
-    <ul class="mt-8 w-full max-w-md">
-      <li v-for="ticket in tickets" :key="ticket.ID">
-        <strong>{{ ticket.Title }}</strong> - {{ ticket.State }}
-        <p>{{ ticket.Description }}</p>
-        <div v-if="ticket.PRLinks">
-          PRs:
-          <ul>
-            <li v-for="pr in ticket.PRLinks" :key="pr">{{ pr }}</li>
-          </ul>
-        </div>
-      </li>
-    </ul>
   </div>
 </template>

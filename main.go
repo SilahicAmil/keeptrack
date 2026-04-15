@@ -31,14 +31,14 @@ func init() {
 // logs any error that might occur.
 func main() {
 
-	_, err := store.NewSQLiteStore()
+	sqliteStore, err := store.NewSQLiteStore()
 	if err != nil {
 		log.Fatal("Failed to initialize SQLite DB:", err)
 	}
 
 	// defer sqliteStore.Close() // if you add Close()
 
-	azure := services.NewAzureDevopsService()
+	azure := services.NewAzureDevopsService(sqliteStore)
 	// Create a new Wails application by providing the necessary options.
 	// Variables 'Name' and 'Description' are for application metadata.
 	// 'Assets' configures the asset server with the 'FS' variable pointing to the frontend files.

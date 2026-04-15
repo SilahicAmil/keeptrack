@@ -2,20 +2,23 @@ package azuredevops
 
 import (
 	"changeme/config"
+	"changeme/internal/services/models"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"strings"
 )
 
 type AzureDevopsClient struct {
-	cfg        *config.CFG
+	cfg        *config.AzureCFG
 	baseURL    string
 	authHeader string
 }
 
-func NewAzureDevopsClient(cfg *config.CFG) *AzureDevopsClient {
+func NewAzureDevopsClient(cfg *config.AzureCFG) *AzureDevopsClient {
 
 	baseURL := fmt.Sprintf(
 		"https://dev.azure.com/%s/%s",
@@ -23,7 +26,11 @@ func NewAzureDevopsClient(cfg *config.CFG) *AzureDevopsClient {
 		cfg.Project,
 	)
 
-	auth := base64.StdEncoding.EncodeToString([]byte(":" + cfg.PAT))
+	rawPAT := strings.TrimSpace(cfg.PAT)
+
+	auth := "Basic " + base64.StdEncoding.EncodeToString(
+		[]byte(":"+rawPAT),
+	)
 
 	return &AzureDevopsClient{
 		cfg:        cfg,
@@ -38,9 +45,12 @@ func (c *AzureDevopsClient) ValidateConfig() error {
 	return nil
 }
 
-func (c *AzureDevopsClient) FetchUser() (*CurrentUser, error) {
+func (c *AzureDevopsClient) FetchUser() (*models.CurrentUser, error) {
 
-	url := "https://app.vssps.visualstudio.com/_apis/profile/profiles/me?api-version=7.1"
+	url := fmt.Sprintf(
+		"https://dev.azure.com/%s/_apis/projects?api-version=7.1",
+		c.cfg.Org,
+	)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -49,11 +59,11 @@ func (c *AzureDevopsClient) FetchUser() (*CurrentUser, error) {
 
 	auth := c.authHeader
 
-	if err != nil {
-		return nil, err
-	}
+	log.Println("AUTH HEADER FULL ", c.authHeader)
+	log.Println("PAT LEN:", len(c.cfg.PAT))
 
-	req.SetBasicAuth("", auth)
+	req.Header.Set("Authorization", auth)
+	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -67,7 +77,7 @@ func (c *AzureDevopsClient) FetchUser() (*CurrentUser, error) {
 		return nil, fmt.Errorf("azure error: %s - %s", resp.Status, string(body))
 	}
 
-	var user CurrentUser
+	var user models.CurrentUser
 	if err := json.Unmarshal(body, &user); err != nil {
 		return nil, err
 	}

@@ -1,9 +1,10 @@
 package store
 
 import (
-	"changeme/azuredevops"
 	"changeme/config"
+	"changeme/internal/services/models"
 	"database/sql"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -61,16 +62,17 @@ func (s *SQLiteStore) init() error {
     `,
 		`
 	CREATE TABLE IF NOT EXISTS config (
-			id INTEGER PRIMARY KEY CHECK (id = 1),
+			id INTEGER PRIMARY KEY,
 			pat TEXT NOT NULL,
 			org TEXT NOT NULL,
 			project TEXT NOT NULL,
-			email TEXT NOT NULL,
-			display_name TEXT NOT NULL)`,
+			email TEXT,
+			display_name TEXT)`,
 		`
 	CREATE TABLE IF NOT EXISTS tickets (
 		id INTEGER PRIMARY KEY,
 		title TEXT,
+		description TEXT,
 		state TEXT,
 		tags TEXT,
 		assigned_to TEXT,
@@ -89,12 +91,18 @@ func (s *SQLiteStore) init() error {
 	return nil
 }
 
-func (s *SQLiteStore) StoreConfig(cfg config.CFG) {
+func (s *SQLiteStore) StoreConfig(cfg config.AzureCFG) error {
 	// Insert into config
+	query := `
+		INSERT OR REPLACE INTO config (id, pat, org, project)
+		VALUES (?, ?, ?, ?)
+		`
+	_, err := s.db.Exec(query, 1, cfg.PAT, cfg.Org, cfg.Project)
+	return err
 }
 
-func (s *SQLiteStore) SaveUser(user azuredevops.CurrentUser) error {
-
+func (s *SQLiteStore) SaveUser(user *models.CurrentUser) error {
+	fmt.Println("user", user)
 	query := `
 		UPDATE config
 		SET email = ?, display_name = ?
@@ -105,6 +113,39 @@ func (s *SQLiteStore) SaveUser(user azuredevops.CurrentUser) error {
 	return err
 }
 
-func (s *SQLiteStore) SaveTickets(tickets []azuredevops.Ticket) {
-	// insert info tickets
+func (s *SQLiteStore) SaveTickets(tickets []models.Ticket) error {
+	query := `
+		INSERT OR REPLACE INTO tickets (
+			id,
+			title,
+			state,
+			description,
+			tags,
+			assigned_to,
+			is_assigned_to_me,
+			changed_date,
+			last_notified_date
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`
+
+	for _, t := range tickets {
+		_, err := s.db.Exec(
+			query,
+			t.ID,
+			t.Title,
+			t.Description,
+			t.State,
+			t.Tags,
+			t.AssignedTo,
+			t.IsAssignedToMe,
+			t.ChangedDate,
+			t.LastNotifiedDate,
+		)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

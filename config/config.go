@@ -1,24 +1,26 @@
 package config
 
-type CFG struct {
-	Provider string `json:"provider,omitempty"`
-	// Azure
-	PAT string `json:"pat,omitempty"`
-	Org string `json:"org,omitempty"`
-
-	// Jira (Later)
-	Email    string `json:"email,omitempty"`
-	APIToken string `json:"apiToken,omitempty"`
-	Domain   string `json:"domain,omitempty"`
-
-	// Common
-	Project string `json:"project,omitempty"`
+type AzureCFG struct {
+	Provider string `json:"provider"`
+	PAT      string `json:"pat"`
+	Org      string `json:"org"`
+	Project  string `json:"project,omitempty"`
+	Validate bool   `json:"validate,omitempty"`
 }
 
-func (c *CFG) IsAzure() bool {
-	return c.Provider == "azure"
+type JiraCFG struct {
+	Provider string `json:"provider"`
+	Email    string `json:"email"`
+	APIToken string `json:"apiToken"`
+	Domain   string `json:"domain"`
+	Project  string `json:"project,omitempty"`
+	Validate bool   `json:"validate,omitempty"`
 }
 
-func (c *CFG) IsJira() bool {
-	return c.Provider == "jira"
-}
+// func (c *CFG) IsAzure() bool {
+// 	return c.Provider == "azure"
+// }
+
+// func (c *CFG) IsJira() bool {
+// 	return c.Provider == "jira"
+// }

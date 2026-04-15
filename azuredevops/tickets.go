@@ -1,6 +1,7 @@
 package azuredevops
 
 import (
+	"changeme/internal/services/models"
 	"changeme/store"
 	"encoding/json"
 	"fmt"
@@ -14,61 +15,89 @@ import (
 
 func (c *AzureDevopsClient) queryAssignedWorkItems() ([]int, error) {
 
-	base := fmt.Sprintf("https://dev.azure.com/%s/%s", c.cfg.Org, c.cfg.Project)
+	base := fmt.Sprintf(
+		"https://dev.azure.com/%s/%s",
+		c.cfg.Org,
+		c.cfg.Project,
+	)
+
 	url := base + "/_apis/wit/wiql?api-version=7.1"
 
 	query := `{
-		"query": "SELECT [System.Id], [System.Title] FROM WorkItems WHERE [System.AssignedTo] = @Me AND [System.State] <> 'Closed' ORDER BY [System.ChangedDate] DESC"
+		"query": "SELECT [System.Id] FROM WorkItems WHERE [System.AssignedTo] = @Me AND [System.State] <> 'Closed'"
 	}`
 
 	req, err := http.NewRequest("POST", url, strings.NewReader(query))
-
 	if err != nil {
 		return nil, err
 	}
 
-	auth := c.authHeader
-
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Authorization", "Basic "+auth)
+	req.Header.Set("Authorization", c.authHeader)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
-
 	if err != nil {
 		return nil, err
 	}
-
 	defer resp.Body.Close()
 
-	var result Response
-
-	err = json.NewDecoder(resp.Body).Decode(&result)
-
-	if err != nil {
+	var result models.Response
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
 
 	var ids []int
-
 	for _, w := range result.WorkItems {
 		ids = append(ids, w.ID)
-
 	}
 
 	return ids, nil
 }
 
-func (c *AzureDevopsClient) queryAssignedWorkItemsData() ([]Ticket, error) {
+func getField(fields map[string]any, key string) string {
+	v, ok := fields[key]
+	if !ok || v == nil {
+		return ""
+	}
+
+	switch val := v.(type) {
+	case string:
+		return val
+	default:
+		return fmt.Sprintf("%v", val)
+	}
+}
+
+func getAssignedTo(fields map[string]any) string {
+	v, ok := fields["System.AssignedTo"]
+	if !ok || v == nil {
+		return ""
+	}
+
+	m, ok := v.(map[string]any)
+	if !ok {
+		return fmt.Sprintf("%v", v)
+	}
+
+	if name, ok := m["displayName"]; ok {
+		return fmt.Sprintf("%v", name)
+	}
+
+	return ""
+}
+
+func (c *AzureDevopsClient) queryAssignedWorkItemsData() ([]models.Ticket, error) {
 
 	ids, err := c.queryAssignedWorkItems()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(ids) == 0 {
+		return []models.Ticket{}, nil
+	}
 
 	idString := strings.Trim(strings.Replace(fmt.Sprint(ids), " ", ",", -1), "[]")
-
-	// Sprintf the below. use c.cfg.project and org
 
 	baseURL := fmt.Sprintf(
 		"https://dev.azure.com/%s/%s/_apis/wit/workitems",
@@ -76,54 +105,62 @@ func (c *AzureDevopsClient) queryAssignedWorkItemsData() ([]Ticket, error) {
 		c.cfg.Project,
 	)
 
+	fields := strings.Join([]string{
+		"System.Id",
+		"System.Title",
+		"System.State",
+		"System.Description",
+		"System.WorkItemType",
+		"System.Tags",
+		"System.AssignedTo",
+		"System.ChangedDate",
+	}, ",")
+
 	url := fmt.Sprintf(
-		"%s?ids=%s&fields=System.Id,System.Title,System.State,System.Description,System.WorkItemType&api-version=7.1",
+		"%s?ids=%s&fields=%s&api-version=7.1",
 		baseURL,
 		idString,
+		fields,
 	)
 
-	fmt.Println(url)
 	req, err := http.NewRequest("GET", url, nil)
-
 	if err != nil {
 		return nil, err
 	}
 
-	auth := c.authHeader
-
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Authorization", "Basic "+auth)
+	req.Header.Set("Authorization", c.authHeader)
 
 	resp, err := http.DefaultClient.Do(req)
-
 	if err != nil {
 		return nil, err
 	}
-
 	defer resp.Body.Close()
 
-	var result WorkItemResponse
+	var result models.WorkItemResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, err
+	}
 
-	json.NewDecoder(resp.Body).Decode(&result)
-
-	var tickets []Ticket
+	var tickets []models.Ticket
 
 	for _, item := range result.Value {
-		tickets = append(tickets, Ticket{
+
+		fmt.Println(strip.StripTags(getField(item.Fields, "System.Description")))
+		tickets = append(tickets, models.Ticket{
 			ID:          item.ID,
-			Title:       item.Fields.Title,
-			Description: strip.StripTags(item.Fields.Description),
-			State:       item.Fields.State,
+			Title:       getField(item.Fields, "System.Title"),
+			State:       getField(item.Fields, "System.State"),
+			Description: strip.StripTags(getField(item.Fields, "System.Description")),
+			Tags:        getField(item.Fields, "System.Tags"),
+			AssignedTo:  getAssignedTo(item.Fields),
+			ChangedDate: getField(item.Fields, "System.ChangedDate"),
 		})
 	}
 
 	return tickets, nil
 }
 
-func (c *AzureDevopsClient) FetchAssignedTickets() ([]Ticket, error) {
+func (c *AzureDevopsClient) FetchAssignedTickets() ([]models.Ticket, error) {
 
 	// Load PAT from .env
 	// query azure devops
@@ -140,31 +177,53 @@ func (c *AzureDevopsClient) FetchAssignedTickets() ([]Ticket, error) {
 
 }
 
-func (c *AzureDevopsClient) FetchAssignedTicketsCache() ([]Ticket, error) {
+func (c *AzureDevopsClient) FetchAssignedTicketsCache() ([]models.Ticket, error) {
 
-	query := `SELECT * from tickets`
+	query := `
+	SELECT
+		id,
+		title,
+		IFNULL(description, ''),
+		state,
+		tags,
+		assigned_to,
+		is_assigned_to_me,
+		changed_date,
+		last_notified_date
+	FROM tickets
+	`
 
 	res, err := store.DB.Query(query)
-
 	if err != nil {
 		return nil, err
 	}
-
 	defer res.Close()
 
-	var tickets []Ticket
+	var tickets []models.Ticket
+
 	for res.Next() {
-		var t Ticket
-		err := res.Scan(&t.ID, &t.Description, &t.Title, &t.State, &t.PRLinks)
+		var t models.Ticket
+
+		err := res.Scan(
+			&t.ID,
+			&t.Title,
+			&t.Description,
+			&t.State,
+			&t.Tags,
+			&t.AssignedTo,
+			&t.IsAssignedToMe,
+			&t.ChangedDate,
+			&t.LastNotifiedDate,
+		)
+
 		if err != nil {
 			return nil, err
 		}
+
 		tickets = append(tickets, t)
 	}
 
-	err = res.Err()
-
-	if err != nil {
+	if err := res.Err(); err != nil {
 		return nil, err
 	}
 

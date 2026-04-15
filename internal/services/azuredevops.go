@@ -3,19 +3,16 @@ package services
 import (
 	"changeme/azuredevops"
 	"changeme/config"
-	"changeme/poller"
+	"changeme/internal/services/models"
 	"changeme/store"
 	"context"
 	"fmt"
-	"time"
-
-	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 type AzureDevopsService struct {
-	client *azuredevops.AzureDevopsClient
-	store  *store.SQLiteStore
-	cfg    config.CFG
+	client   *azuredevops.AzureDevopsClient
+	store    *store.SQLiteStore
+	azureCFG config.AzureCFG
 	// ticketStore  *store.TicketStore
 	// prStore      *store.PRStore
 	// pollInterval time.Duration
@@ -27,36 +24,37 @@ type AzureDevopsService struct {
 // then azuredevops.tickets
 // then store.ticketstore?
 
-func NewAzureDevopsService() *AzureDevopsService {
+func NewAzureDevopsService(store *store.SQLiteStore) *AzureDevopsService {
 	return &AzureDevopsService{
 		client: &azuredevops.AzureDevopsClient{},
+		store:  store,
 	}
 }
 
 func (s *AzureDevopsService) Start(ctx context.Context) {
-	app := application.Get() // safe here
+	// app := application.Get() // safe here
 
-	go poller.StartTicketPoller(ctx, 1*time.Minute, s.FetchAssignedTickets, func(tickets []azuredevops.Ticket) {
-		fmt.Println("This fired")
-		fmt.Println("tickets", tickets)
-		app.Event.Emit("tickets-updated", tickets)
-	})
+	// go poller.StartTicketPoller(ctx, 1*time.Minute, s.FetchAssignedTickets, func(tickets []models.Ticket) {
+	// 	fmt.Println("This fired")
+	// 	fmt.Println("tickets", tickets)
+	// 	app.Event.Emit("tickets-updated", tickets)
+	// })
 }
 
-func (s *AzureDevopsService) FetchAssignedTickets() ([]azuredevops.Ticket, error) {
+func (s *AzureDevopsService) FetchAssignedTickets() ([]models.Ticket, error) {
 	tickets, _ := s.client.FetchAssignedTickets()
 	fmt.Println("start up ", tickets)
 	return s.client.FetchAssignedTickets()
 }
 
-func (s *AzureDevopsService) FetchAssignedTicketsCache() ([]azuredevops.Ticket, error) {
+func (s *AzureDevopsService) FetchAssignedTicketsCache() ([]models.Ticket, error) {
 
 	return s.client.FetchAssignedTicketsCache()
 
 }
 
-func (s *AzureDevopsService) InitializeApp(cfg config.CFG) ([]azuredevops.Ticket, error) {
-	s.cfg = cfg
+func (s *AzureDevopsService) InitializeApp(cfg config.AzureCFG) ([]models.Ticket, error) {
+	s.azureCFG = cfg
 
 	s.client = azuredevops.NewAzureDevopsClient(&cfg)
 
@@ -64,8 +62,12 @@ func (s *AzureDevopsService) InitializeApp(cfg config.CFG) ([]azuredevops.Ticket
 		return nil, err
 	}
 
-	// Save config
+	if s.azureCFG.Validate {
+		// Just return an empty struct back for now
+		return []models.Ticket{}, nil
+	}
 
+	// Save config
 	if err := s.store.StoreConfig(cfg); err != nil {
 		return nil, err
 	}
@@ -84,9 +86,9 @@ func (s *AzureDevopsService) InitializeApp(cfg config.CFG) ([]azuredevops.Ticket
 		return nil, err
 	}
 
-	// if err := s.store.SaveTickets(tickets); err != nil {
-	// 	return nil, err
-	// }
+	if err := s.store.SaveTickets(tickets); err != nil {
+		return nil, err
+	}
 
 	return tickets, nil
 }
