@@ -20,6 +20,18 @@ type CurrentUser struct {
 	Email       string `json:"emailAddress"`
 }
 
+type ConnectionData struct {
+	AuthenticatedUser struct {
+		ID          string `json:"id"`
+		DisplayName string `json:"providerDisplayName"`
+		Properties  struct {
+			Account struct {
+				Value string `json:"$value"`
+			} `json:"Account"`
+		} `json:"properties"`
+	} `json:"authenticatedUser"`
+}
+
 type WorkItemRef struct {
 	ID    int    `json:"id"`
 	Title string `json:"title"`

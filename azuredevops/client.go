@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -48,7 +47,7 @@ func (c *AzureDevopsClient) ValidateConfig() error {
 func (c *AzureDevopsClient) FetchUser() (*models.CurrentUser, error) {
 
 	url := fmt.Sprintf(
-		"https://dev.azure.com/%s/_apis/projects?api-version=7.1",
+		"https://dev.azure.com/%s/_apis/connectionData?api-version=7.1-preview.1",
 		c.cfg.Org,
 	)
 
@@ -57,13 +56,7 @@ func (c *AzureDevopsClient) FetchUser() (*models.CurrentUser, error) {
 		return nil, err
 	}
 
-	auth := c.authHeader
-
-	log.Println("AUTH HEADER FULL ", c.authHeader)
-	log.Println("PAT LEN:", len(c.cfg.PAT))
-
-	req.Header.Set("Authorization", auth)
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", c.authHeader)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -77,10 +70,14 @@ func (c *AzureDevopsClient) FetchUser() (*models.CurrentUser, error) {
 		return nil, fmt.Errorf("azure error: %s - %s", resp.Status, string(body))
 	}
 
-	var user models.CurrentUser
-	if err := json.Unmarshal(body, &user); err != nil {
+	var conn models.ConnectionData
+	if err := json.Unmarshal(body, &conn); err != nil {
 		return nil, err
 	}
 
-	return &user, nil
+	return &models.CurrentUser{
+		ID:          conn.AuthenticatedUser.ID,
+		DisplayName: conn.AuthenticatedUser.DisplayName,
+		Email:       conn.AuthenticatedUser.Properties.Account.Value,
+	}, nil
 }
