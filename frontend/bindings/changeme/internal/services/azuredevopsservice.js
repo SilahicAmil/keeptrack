@@ -14,11 +14,17 @@ import * as config$0 from "../../config/models.js";
 import * as models$0 from "./models/models.js";
 
 /**
- * @param {models$0.CurrentUser | null} user
+ * @returns {$CancellablePromise<boolean>}
+ */
+export function CheckAppState() {
+    return $Call.ByID(3733172107);
+}
+
+/**
  * @returns {$CancellablePromise<models$0.Ticket[]>}
  */
-export function FetchAssignedTickets(user) {
-    return $Call.ByID(1514196524, user).then(/** @type {($result: any) => any} */(($result) => {
+export function FetchAssignedTickets() {
+    return $Call.ByID(1514196524).then(/** @type {($result: any) => any} */(($result) => {
         return $$createType1($result);
     }));
 }

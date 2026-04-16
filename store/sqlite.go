@@ -63,6 +63,7 @@ func (s *SQLiteStore) init() error {
 		`
 	CREATE TABLE IF NOT EXISTS config (
 			id INTEGER PRIMARY KEY,
+			provider TEXT NOT NULL,
 			pat TEXT NOT NULL,
 			org TEXT NOT NULL,
 			project TEXT NOT NULL,
@@ -94,14 +95,14 @@ func (s *SQLiteStore) init() error {
 func (s *SQLiteStore) StoreConfig(cfg config.AzureCFG) error {
 	// Insert into config
 	query := `
-		INSERT OR REPLACE INTO config (id, pat, org, project)
+		INSERT OR REPLACE INTO config (id, provider, pat, org, project)
 		VALUES (?, ?, ?, ?)
 		`
-	_, err := s.db.Exec(query, 1, cfg.PAT, cfg.Org, cfg.Project)
+	_, err := s.db.Exec(query, 1, cfg.Provider, cfg.PAT, cfg.Org, cfg.Project)
 	return err
 }
 
-func (s *SQLiteStore) SaveUser(user *models.CurrentUser) error {
+func (s *SQLiteStore) SaveUserToConfig(user *models.CurrentUser) error {
 	fmt.Println("user", user)
 	query := `
 		UPDATE config
@@ -148,4 +149,49 @@ func (s *SQLiteStore) SaveTickets(tickets []models.Ticket) error {
 	}
 
 	return nil
+}
+
+func (s *SQLiteStore) GetAppData() (config.AzureCFG, models.CurrentUser, error) {
+	query := `
+	SELECT org, project, pat, display_name, email
+	FROM config
+	LIMIT 1
+	`
+
+	var cfg config.AzureCFG
+	var user models.CurrentUser
+
+	err := s.db.QueryRow(query).Scan(
+		&cfg.Org,
+		&cfg.Project,
+		&cfg.PAT,
+		&user.DisplayName,
+		&user.Email,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return config.AzureCFG{}, models.CurrentUser{}, nil
+		}
+		return config.AzureCFG{}, models.CurrentUser{}, err
+	}
+
+	return cfg, user, nil
+}
+
+func (s *SQLiteStore) CheckAppState() (bool, config.AzureCFG, models.CurrentUser, error) {
+	cfg, user, err := s.GetAppData()
+	if err != nil {
+		return false, config.AzureCFG{}, models.CurrentUser{}, err
+	}
+
+	if cfg.Org == "" || cfg.Project == "" || cfg.PAT == "" {
+		return false, config.AzureCFG{}, models.CurrentUser{}, nil
+	}
+
+	if user.DisplayName == "" {
+		return false, config.AzureCFG{}, models.CurrentUser{}, nil
+	}
+
+	return true, cfg, user, nil
 }

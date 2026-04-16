@@ -146,7 +146,6 @@ func (c *AzureDevopsClient) queryAssignedWorkItemsData(user *models.CurrentUser)
 	for _, item := range result.Value {
 
 		assignedTo := getAssignedTo(item.Fields)
-		fmt.Println(strip.StripTags(getField(item.Fields, "System.Description")))
 		tickets = append(tickets, models.Ticket{
 			ID:             item.ID,
 			Title:          getField(item.Fields, "System.Title"),
@@ -162,7 +161,7 @@ func (c *AzureDevopsClient) queryAssignedWorkItemsData(user *models.CurrentUser)
 	return tickets, nil
 }
 
-func (c *AzureDevopsClient) FetchAssignedTickets(user *models.CurrentUser) ([]models.Ticket, error) {
+func (c *AzureDevopsClient) FetchAssignedTickets(user *models.CurrentUser, s *store.SQLiteStore) ([]models.Ticket, error) {
 
 	// Load PAT from .env
 	// query azure devops
@@ -170,6 +169,13 @@ func (c *AzureDevopsClient) FetchAssignedTickets(user *models.CurrentUser) ([]mo
 	// and return
 
 	tickets, err := c.queryAssignedWorkItemsData(user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Save tickets to DB
+	err = s.SaveTickets(tickets)
 
 	if err != nil {
 		return nil, err

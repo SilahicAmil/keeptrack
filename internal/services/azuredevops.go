@@ -4,15 +4,20 @@ import (
 	"changeme/azuredevops"
 	"changeme/config"
 	"changeme/internal/services/models"
+	"changeme/poller"
 	"changeme/store"
 	"context"
 	"fmt"
+	"time"
+
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 type AzureDevopsService struct {
-	client   *azuredevops.AzureDevopsClient
-	store    *store.SQLiteStore
-	azureCFG config.AzureCFG
+	client      *azuredevops.AzureDevopsClient
+	store       *store.SQLiteStore
+	azureCFG    config.AzureCFG
+	currentUser *models.CurrentUser
 	// ticketStore  *store.TicketStore
 	// prStore      *store.PRStore
 	// pollInterval time.Duration
@@ -32,19 +37,18 @@ func NewAzureDevopsService(store *store.SQLiteStore) *AzureDevopsService {
 }
 
 func (s *AzureDevopsService) Start(ctx context.Context) {
-	// app := application.Get() // safe here
+	app := application.Get() // safe here
 
-	// go poller.StartTicketPoller(ctx, 1*time.Minute, s.FetchAssignedTickets, func(tickets []models.Ticket) {
-	// 	fmt.Println("This fired")
-	// 	fmt.Println("tickets", tickets)
-	// 	app.Event.Emit("tickets-updated", tickets)
-	// })
+	go poller.StartTicketPoller(ctx, 30*time.Second, s.FetchAssignedTickets, func(tickets []models.Ticket) {
+		fmt.Println("This fired")
+		fmt.Println("tickets", tickets)
+		app.Event.Emit("tickets-updated", tickets)
+
+	})
 }
 
-func (s *AzureDevopsService) FetchAssignedTickets(user *models.CurrentUser) ([]models.Ticket, error) {
-	tickets, _ := s.client.FetchAssignedTickets(user)
-	fmt.Println("start up ", tickets)
-	return s.client.FetchAssignedTickets(user)
+func (s *AzureDevopsService) FetchAssignedTickets() ([]models.Ticket, error) {
+	return s.client.FetchAssignedTickets(s.currentUser, s.store)
 }
 
 func (s *AzureDevopsService) FetchAssignedTicketsCache() ([]models.Ticket, error) {
@@ -77,11 +81,11 @@ func (s *AzureDevopsService) InitializeApp(cfg config.AzureCFG) ([]models.Ticket
 		return nil, err
 	}
 
-	if err := s.store.SaveUser(user); err != nil {
+	if err := s.store.SaveUserToConfig(user); err != nil {
 		return nil, err
 	}
 
-	tickets, err := s.client.FetchAssignedTickets(user)
+	tickets, err := s.client.FetchAssignedTickets(user, s.store)
 	if err != nil {
 		return nil, err
 	}
@@ -91,6 +95,28 @@ func (s *AzureDevopsService) InitializeApp(cfg config.AzureCFG) ([]models.Ticket
 	}
 
 	return tickets, nil
+}
+
+func (s *AzureDevopsService) CheckAppState() (bool, error) {
+
+	ready, cfg, user, err := s.store.CheckAppState()
+	if err != nil {
+		fmt.Println(err)
+		return false, err
+	}
+
+	if !ready {
+		fmt.Println("not ready?")
+		return false, nil
+	}
+
+	// use cfg directly (no need to rebuild)
+	s.client = azuredevops.NewAzureDevopsClient(&cfg)
+
+	// store user in memory
+	s.currentUser = &user
+
+	return true, nil
 }
 
 func (s *AzureDevopsService) fetchAndUpdate() {}

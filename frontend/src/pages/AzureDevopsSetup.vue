@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import router from "@/router";
-import { InitializeApp } from "../../bindings/changeme/internal/services/azuredevopsservice";
 import { ref } from "vue";
 import { AzureDevopsService } from "../../bindings/changeme/internal/services";
 

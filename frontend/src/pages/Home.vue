@@ -2,12 +2,22 @@
 import { onMounted, ref } from "vue";
 import { Events } from "@wailsio/runtime";
 import Button from "../components/ui/Button.vue";
+import { AzureDevopsService } from "../../bindings/changeme/internal/services";
 
 const tickets = ref([]);
+const loaded = ref(false);
 
 onMounted(async () => {
-  // If we have any tickets in cache
-  // Just redirect to dashboard
+  const isLoaded = await AzureDevopsService.CheckAppState();
+
+  console.log(isLoaded);
+  console.log(loaded.value);
+
+  loaded.value = isLoaded;
+
+  // if (loaded.value) {
+  //   router.push({ path: "/dashboard" });
+  // }
 });
 </script>
 
@@ -27,9 +37,14 @@ onMounted(async () => {
           Connect an integration to start tracking your tickets.
         </p>
       </div>
-      <div class="flex justify-center">
+      <div v-if="!loaded" class="flex justify-center">
         <router-link to="/setup" class="cursor-pointer"
           ><Button variant="primary">Get Started</Button></router-link
+        >
+      </div>
+      <div v-if="loaded" class="flex justify-center">
+        <router-link to="/dashboard" class="cursor-pointer"
+          ><Button variant="primary">Continue</Button></router-link
         >
       </div>
     </div>
