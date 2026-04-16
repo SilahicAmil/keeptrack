@@ -39,6 +39,9 @@ func NewAzureDevopsService(store *store.SQLiteStore) *AzureDevopsService {
 func (s *AzureDevopsService) Start(ctx context.Context) {
 	app := application.Get() // safe here
 
+	//
+	// TODO : UPDATE TIME BEFORE RELASE - IMPORTANT
+	//
 	go poller.StartTicketPoller(ctx, 30*time.Second, s.FetchAssignedTickets, func(tickets []models.Ticket) {
 		fmt.Println("This fired")
 		fmt.Println("tickets", tickets)
