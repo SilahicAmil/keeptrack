@@ -49,6 +49,10 @@ onMounted(async () => {
 </script>
 
 <template>
+  <!-- TODO: Implement the UI from the figma photo -->
+  <!-- Start with Nav -->
+  <!-- Then do the tickets section -->
+  <!-- Lastly do the notifs section -->
   <!-- TODO: Remove Later. This is for testing only -->
   <ul class="mt-8 w-full max-w-md">
     <li v-for="ticket in tickets" :key="ticket.ID">

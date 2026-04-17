@@ -12,6 +12,7 @@ type Ticket struct {
 	IsAssignedToMe   bool   `json:"IsAssignedToMe"`
 	ChangedDate      string `json:"ChangedDate"`
 	LastNotifiedDate string `json:"LastNotifiedDate"`
+	PRIds            []int  `json:"PRIds"`
 }
 
 type CurrentUser struct {

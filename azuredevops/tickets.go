@@ -99,6 +99,9 @@ func (c *AzureDevopsClient) queryAssignedWorkItemsData(user *models.CurrentUser)
 
 	idString := strings.Trim(strings.Replace(fmt.Sprint(ids), " ", ",", -1), "[]")
 
+	// TODO: Change this to use &$expand=relations
+	// Get everthing we need. Ticket info + Links + Custom Fields
+	// Then just update the model struct ez pz (famous last words)
 	baseURL := fmt.Sprintf(
 		"https://dev.azure.com/%s/%s/_apis/wit/workitems",
 		c.cfg.Org,
@@ -155,6 +158,7 @@ func (c *AzureDevopsClient) queryAssignedWorkItemsData(user *models.CurrentUser)
 			AssignedTo:     assignedTo,
 			IsAssignedToMe: assignedTo == user.DisplayName,
 			ChangedDate:    getField(item.Fields, "System.ChangedDate"),
+			// PRIds: getPRIds(item.relations),
 		})
 	}
 
