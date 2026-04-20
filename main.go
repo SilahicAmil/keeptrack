@@ -3,7 +3,6 @@ package main
 import (
 	"changeme/internal/services"
 	"changeme/store"
-	"context"
 	"embed"
 	_ "embed"
 	"log"
@@ -79,8 +78,6 @@ func main() {
 		// BackgroundColour: application.NewRGB(27, 38, 54),
 		URL: "/",
 	})
-
-	azure.Start(context.Background())
 
 	// Run the application. This blocks until the application has been exited.
 	err = app.Run()

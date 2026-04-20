@@ -102,6 +102,7 @@ func (c *AzureDevopsClient) queryAssignedWorkItemsData(user *models.CurrentUser)
 	// TODO: Change this to use &$expand=relations
 	// Get everthing we need. Ticket info + Links + Custom Fields
 	// Then just update the model struct ez pz (famous last words)
+
 	baseURL := fmt.Sprintf(
 		"https://dev.azure.com/%s/%s/_apis/wit/workitems",
 		c.cfg.Org,

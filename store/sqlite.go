@@ -94,9 +94,12 @@ func (s *SQLiteStore) init() error {
 
 func (s *SQLiteStore) StoreConfig(cfg config.AzureCFG) error {
 	// Insert into config
+
+	// TODO: Eventually store PAT into keyring
+	// This is fine for now I think
 	query := `
 		INSERT OR REPLACE INTO config (id, provider, pat, org, project)
-		VALUES (?, ?, ?, ?)
+		VALUES (?, ?, ?, ?, ?)
 		`
 	_, err := s.db.Exec(query, 1, cfg.Provider, cfg.PAT, cfg.Org, cfg.Project)
 	return err
@@ -152,6 +155,8 @@ func (s *SQLiteStore) SaveTickets(tickets []models.Ticket) error {
 }
 
 func (s *SQLiteStore) GetAppData() (config.AzureCFG, models.CurrentUser, error) {
+
+	// TODO: Get PAT from keyring
 	query := `
 	SELECT org, project, pat, display_name, email
 	FROM config

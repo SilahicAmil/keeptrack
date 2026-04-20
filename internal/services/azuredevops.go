@@ -8,6 +8,7 @@ import (
 	"changeme/store"
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
@@ -18,10 +19,12 @@ type AzureDevopsService struct {
 	store       *store.SQLiteStore
 	azureCFG    config.AzureCFG
 	currentUser *models.CurrentUser
+	isPolling   bool
+	stopPoll    context.CancelFunc
 	// ticketStore  *store.TicketStore
 	// prStore      *store.PRStore
 	// pollInterval time.Duration
-	// stopPoll     context.CancelFunc
+
 }
 
 // go routine poller? startPoller func
@@ -84,6 +87,8 @@ func (s *AzureDevopsService) InitializeApp(cfg config.AzureCFG) ([]models.Ticket
 		return nil, err
 	}
 
+	s.currentUser = user
+
 	if err := s.store.SaveUserToConfig(user); err != nil {
 		return nil, err
 	}
@@ -98,6 +103,29 @@ func (s *AzureDevopsService) InitializeApp(cfg config.AzureCFG) ([]models.Ticket
 	}
 
 	return tickets, nil
+}
+
+func (s *AzureDevopsService) StartPolling() {
+	if s.isPolling {
+		// prevent dupe go routines
+		return
+	}
+
+	if s.client == nil {
+		log.Println("poller not started: client not initialized")
+		return
+	}
+
+	// Manage the poller
+	ctx, cancel := context.WithCancel(context.Background())
+	s.stopPoll = cancel
+	s.isPolling = true
+
+	go func() {
+		defer func() { s.isPolling = false }()
+
+		s.Start(ctx)
+	}()
 }
 
 func (s *AzureDevopsService) CheckAppState() (bool, error) {
@@ -121,5 +149,3 @@ func (s *AzureDevopsService) CheckAppState() (bool, error) {
 
 	return true, nil
 }
-
-func (s *AzureDevopsService) fetchAndUpdate() {}

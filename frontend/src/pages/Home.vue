@@ -10,20 +10,18 @@ const loaded = ref(false);
 onMounted(async () => {
   const isLoaded = await AzureDevopsService.CheckAppState();
 
-  console.log(isLoaded);
-  console.log(loaded.value);
-
-  loaded.value = isLoaded;
-
-  // if (loaded.value) {
-  //   router.push({ path: "/dashboard" });
-  // }
+  if (isLoaded) {
+    await AzureDevopsService.StartPolling();
+    router.push("/dashboard"); // auto go to dashboard
+  } else {
+    loaded.value = false;
+  }
 });
 </script>
 
 <template>
   <div
-    class="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-slate-100 via-slate-50 to-slate-200"
+    class="min-h-screen flex flex-col items-center justify-center p-6 bg-linear-to-br from-slate-100 via-slate-50 to-slate-200"
   >
     <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-6">
       <div class="text-center space-y-2">

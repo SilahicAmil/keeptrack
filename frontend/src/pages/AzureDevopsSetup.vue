@@ -2,6 +2,7 @@
 import router from "@/router";
 import { ref } from "vue";
 import { AzureDevopsService } from "../../bindings/changeme/internal/services";
+import Button from "@/components/ui/Button.vue";
 
 const PAT = ref("");
 const Org = ref("");
@@ -26,16 +27,24 @@ async function checkPat(validate: boolean) {
     validate,
   };
 
-  console.log(jsonPostObj);
   try {
-    loading.value = "Validating Configuration. Please Wait.";
+    loading.value = "Loading...";
 
-    await AzureDevopsService.InitializeApp(jsonPostObj);
+    const valid = await AzureDevopsService.InitializeApp(jsonPostObj);
+
+    if (valid && validate) {
+      loading.value = "Configuration Valid!";
+      return;
+    }
 
     if (!validate) {
+      // Start polling before going to dashboard.
+      // Assume all good
+      await AzureDevopsService.StartPolling();
       router.push({ path: "/dashboard" });
     }
   } catch (e) {
+    // TODO: eventually do something with this
     console.log(e);
   }
 }
@@ -43,28 +52,39 @@ async function checkPat(validate: boolean) {
 
 <template>
   <!-- TODO: Make the UI for this like a login page -->
-  <h1>Azure Devops setup</h1>
 
-  <p v-if="loading">{{ loading }}</p>
-
-  <!-- Step 1 - Ask for PAT + Org + Team -->
-  <input
-    type="password"
-    placeholder="Enter your PAT. Or else..."
-    v-model="PAT"
-  />
-  <input
-    type="text"
-    placeholder="Enter your Organization. Or else..."
-    v-model="Org"
-  />
-  <input
-    type="text"
-    placeholder="Enter your Project. Or else..."
-    v-model="Project"
-  />
-  <button @click="checkPat(true)">Check</button>
-  <button @click="checkPat(false)">Complete</button>
-  <!-- Loading spinner component while async calls -->
-  <!-- Redirect to dashboard. With "pre-loaded" data. -->
+  <div
+    class="min-h-screen flex flex-col items-center justify-center p-6 bg-linear-to-br from-slate-100 via-slate-50 to-slate-200"
+  >
+    <h1 class="text-2xl font-mono mb-2">Azure Devops Setup</h1>
+    <p v-if="loading">{{ loading }}</p>
+    <div
+      class="w-full max-w-lg bg-white rounded-2xl shadow-xl p-8 space-y-6 flex flex-col mb-2"
+    >
+      <!-- Step 1 - Ask for PAT + Org + Team -->
+      <input
+        type="password"
+        placeholder="Enter your PAT. Or else..."
+        v-model="PAT"
+      />
+      <input
+        type="text"
+        placeholder="Enter your Organization. Or else..."
+        v-model="Org"
+      />
+      <input
+        type="text"
+        placeholder="Enter your Project. Or else..."
+        v-model="Project"
+      />
+    </div>
+    <div class="flex justify-center gap-24 max-w-lg">
+      <div class="flex justify-center">
+        <Button variant="primary" @click="checkPat(true)">Check</Button>
+      </div>
+      <div class="flex justify-center">
+        <Button variant="primary" @click="checkPat(false)">Continue</Button>
+      </div>
+    </div>
+  </div>
 </template>
