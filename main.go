@@ -10,6 +10,12 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
+//
+// BEFORE RELEASE
+// TODO: Make all fmt.println's go to some type of log file
+// Store in same spot as DB?
+//
+
 // Wails uses Go's `embed` package to embed the frontend files into the binary.
 // Any files in the frontend/dist folder will be embedded into the binary and
 // made available to the frontend.
