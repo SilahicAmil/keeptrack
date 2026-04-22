@@ -1,6 +1,6 @@
 # keeptrack
 
-Small desktop app that watches your Azure DevOps PRs and tickets in the background so you don't have to keep a browser tab open.
+Small desktop app that watches your Azure DevOps tickets and PRs (coming soon) in the background so you don't have to rely on Azure Devops to send notifications.
 
 Built with [Wails](https://v3.wails.io/) (Go + Vue).
 
@@ -9,49 +9,47 @@ Built with [Wails](https://v3.wails.io/) (Go + Vue).
 Head to the [releases page](https://github.com/SilahicAmil/keeptrack/releases) and grab the latest build for your OS:
 
 - Windows: `keeptrack-windows-amd64.exe`
-- macOS: `keeptrack-macos-arm64`
-- Linux: `keeptrack-linux-amd64`
+- macOS: `keeptrack-macos-arm64.dmg`
+- Linux: `keeptrack-linux-amd64.AppImage` (run `chmod +x` on it once, then double-click)
 
-Run it. First launch walks you through connecting Azure DevOps (org, project, and a PAT with read access to Work Items and Code).
+Run it. First launch walks you through connecting Azure DevOps. You'll need:
+
+- Your **org**
+- Your **project**
+- A **Personal Access Token (PAT)**
+
+keeptrack only ever _reads_ from Azure DevOps. It never writes, comments, or changes anything. A god-level PAT will work fine, but for your own safety we recommend a read-only token.
 
 ## Contributing
 
-PRs welcome. Standard flow:
+PRs are welcome. Please [open an issue](https://github.com/SilahicAmil/keeptrack/issues) first before doing any changes.
 
-1. Fork the repo
-2. `git checkout -b your-branch`
-3. Commit your changes
-4. Push and [open a PR](https://github.com/SilahicAmil/keeptrack/compare) against `main`
+### Clone
 
-For anything bigger than a small fix, please [open an issue](https://github.com/SilahicAmil/keeptrack/issues) first.
+```bash
+git clone https://github.com/SilahicAmil/keeptrack.git
+cd keeptrack
+```
 
-## Running locally
+### Running locally
 
 You'll need:
 
 - [Go](https://go.dev/dl/) 1.25+
 - [Node.js](https://nodejs.org/) 20+
-- [Task](https://taskfile.dev/)
 - [Wails v3 CLI](https://v3.wails.io/getting-started/installation/): `go install -v github.com/wailsapp/wails/v3/cmd/wails3@latest`
 - On Linux: `libgtk-3-dev` and `libwebkit2gtk-4.1-dev`
 
 Then:
 
 ```bash
-task dev      # hot-reloaded dev build
-task build    # production build into bin/
+wails3 dev      # hot-reloaded dev build
+wails3 build    # production build into bin/
 ```
 
-## Releases
+See the [Wails v3 docs](https://v3.wails.io/) for more.
 
-Tagged pushes (`v*`) trigger [`.github/workflows/release.yml`](.github/workflows/release.yml), which builds binaries for Windows, macOS, and Linux and attaches them to a draft GitHub release.
-
-```bash
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-## Project layout
+### Project layout
 
 ```
 azuredevops/   Azure DevOps API client
@@ -64,7 +62,7 @@ frontend/      Vue 3 + Tailwind UI
 main.go        Entry point
 ```
 
-## Built with
+## Technologies used
 
 - [Wails v3](https://v3.wails.io/)
 - [Go](https://go.dev/)

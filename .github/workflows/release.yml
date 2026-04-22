@@ -19,15 +19,12 @@ jobs:
           - name: windows
             os: windows-latest
             artifact: keeptrack-windows-amd64.exe
-            binary: bin/keeptrack.exe
           - name: macos
             os: macos-latest
-            artifact: keeptrack-macos-arm64
-            binary: bin/keeptrack
+            artifact: keeptrack-macos-arm64.dmg
           - name: linux
             os: ubuntu-latest
-            artifact: keeptrack-linux-amd64
-            binary: bin/keeptrack
+            artifact: keeptrack-linux-amd64.AppImage
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -47,7 +44,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libfuse2
 
       - name: Install Task
         uses: arduino/setup-task@v2
@@ -62,14 +59,46 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: Build
+      - name: Build (Windows)
+        if: matrix.os == 'windows-latest'
         run: task build
 
-      - name: Rename binary
+      - name: Package (macOS .app)
+        if: matrix.os == 'macos-latest'
+        run: task darwin:package
+
+      - name: Package (Linux AppImage)
+        if: matrix.os == 'ubuntu-latest'
+        run: task linux:create:appimage
+
+      - name: Install create-dmg
+        if: matrix.os == 'macos-latest'
+        run: brew install create-dmg
+
+      - name: Stage artifact
         shell: bash
         run: |
           mkdir -p dist
-          cp "${{ matrix.binary }}" "dist/${{ matrix.artifact }}"
+          case "${{ matrix.os }}" in
+            windows-latest)
+              cp bin/keeptrack.exe "dist/${{ matrix.artifact }}"
+              ;;
+            macos-latest)
+              create-dmg \
+                --volname "keeptrack" \
+                --window-pos 200 120 \
+                --window-size 600 400 \
+                --icon-size 100 \
+                --icon "keeptrack.app" 175 190 \
+                --hide-extension "keeptrack.app" \
+                --app-drop-link 425 190 \
+                "dist/${{ matrix.artifact }}" \
+                "bin/keeptrack.app"
+              ;;
+            ubuntu-latest)
+              cp bin/*.AppImage "dist/${{ matrix.artifact }}"
+              ;;
+          esac
 
       - uses: actions/upload-artifact@v4
         with:
