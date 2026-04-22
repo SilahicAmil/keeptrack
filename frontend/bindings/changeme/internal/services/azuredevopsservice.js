@@ -8,10 +8,20 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
-import * as azuredevops$0 from "../../azuredevops/models.js";
+import * as config$0 from "../../config/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as models$0 from "./models/models.js";
 
 /**
- * @returns {$CancellablePromise<azuredevops$0.Ticket[]>}
+ * @returns {$CancellablePromise<boolean>}
+ */
+export function CheckAppState() {
+    return $Call.ByID(3733172107);
+}
+
+/**
+ * @returns {$CancellablePromise<models$0.Ticket[]>}
  */
 export function FetchAssignedTickets() {
     return $Call.ByID(1514196524).then(/** @type {($result: any) => any} */(($result) => {
@@ -20,10 +30,20 @@ export function FetchAssignedTickets() {
 }
 
 /**
- * @returns {$CancellablePromise<azuredevops$0.Ticket[]>}
+ * @returns {$CancellablePromise<models$0.Ticket[]>}
  */
 export function FetchAssignedTicketsCache() {
     return $Call.ByID(2655116166).then(/** @type {($result: any) => any} */(($result) => {
+        return $$createType1($result);
+    }));
+}
+
+/**
+ * @param {config$0.AzureCFG} cfg
+ * @returns {$CancellablePromise<models$0.Ticket[]>}
+ */
+export function InitializeApp(cfg) {
+    return $Call.ByID(1653907426, cfg).then(/** @type {($result: any) => any} */(($result) => {
         return $$createType1($result);
     }));
 }
@@ -36,21 +56,12 @@ export function Start() {
 }
 
 /**
- * @param {azuredevops$0.Config} cfg
  * @returns {$CancellablePromise<void>}
  */
-export function StoreConfig(cfg) {
-    return $Call.ByID(1270630292, cfg);
-}
-
-/**
- * @param {azuredevops$0.Config} cfg
- * @returns {$CancellablePromise<void>}
- */
-export function ValidateConfig(cfg) {
-    return $Call.ByID(4044659485, cfg);
+export function StartPolling() {
+    return $Call.ByID(1840371022);
 }
 
 // Private type creation functions
-const $$createType0 = azuredevops$0.Ticket.createFrom;
+const $$createType0 = models$0.Ticket.createFrom;
 const $$createType1 = $Create.Array($$createType0);

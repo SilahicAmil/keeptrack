@@ -1,7 +1,10 @@
 package store
 
 import (
+	"changeme/config"
+	"changeme/internal/services/models"
 	"database/sql"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -59,10 +62,25 @@ func (s *SQLiteStore) init() error {
     `,
 		`
 	CREATE TABLE IF NOT EXISTS config (
-			id INTEGER PRIMARY KEY CHECK (id = 1),
+			id INTEGER PRIMARY KEY,
+			provider TEXT NOT NULL,
 			pat TEXT NOT NULL,
 			org TEXT NOT NULL,
-			project TEXT NOT NULL)`,
+			project TEXT NOT NULL,
+			email TEXT,
+			display_name TEXT)`,
+		`
+	CREATE TABLE IF NOT EXISTS tickets (
+		id INTEGER PRIMARY KEY,
+		title TEXT,
+		description TEXT,
+		state TEXT,
+		tags TEXT,
+		assigned_to TEXT,
+		is_assigned_to_me BOOLEAN,
+		changed_date TEXT,
+		last_notified_date TEXT
+	)`,
 	}
 
 	for _, q := range queries {
@@ -72,4 +90,113 @@ func (s *SQLiteStore) init() error {
 	}
 
 	return nil
+}
+
+func (s *SQLiteStore) StoreConfig(cfg config.AzureCFG) error {
+	// Insert into config
+
+	// TODO: Eventually store PAT into keyring
+	// This is fine for now I think
+	query := `
+		INSERT OR REPLACE INTO config (id, provider, pat, org, project)
+		VALUES (?, ?, ?, ?, ?)
+		`
+	_, err := s.db.Exec(query, 1, cfg.Provider, cfg.PAT, cfg.Org, cfg.Project)
+	return err
+}
+
+func (s *SQLiteStore) SaveUserToConfig(user *models.CurrentUser) error {
+	fmt.Println("user", user)
+	query := `
+		UPDATE config
+		SET email = ?, display_name = ?
+		WHERE id = 1
+	`
+
+	_, err := s.db.Exec(query, user.Email, user.DisplayName)
+	return err
+}
+
+func (s *SQLiteStore) SaveTickets(tickets []models.Ticket) error {
+	query := `
+		INSERT OR REPLACE INTO tickets (
+			id,
+			title,
+			state,
+			description,
+			tags,
+			assigned_to,
+			is_assigned_to_me,
+			changed_date,
+			last_notified_date
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`
+
+	for _, t := range tickets {
+		_, err := s.db.Exec(
+			query,
+			t.ID,
+			t.Title,
+			t.Description,
+			t.State,
+			t.Tags,
+			t.AssignedTo,
+			t.IsAssignedToMe,
+			t.ChangedDate,
+			t.LastNotifiedDate,
+		)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *SQLiteStore) GetAppData() (config.AzureCFG, models.CurrentUser, error) {
+
+	// TODO: Get PAT from keyring
+	query := `
+	SELECT org, project, pat, display_name, email
+	FROM config
+	LIMIT 1
+	`
+
+	var cfg config.AzureCFG
+	var user models.CurrentUser
+
+	err := s.db.QueryRow(query).Scan(
+		&cfg.Org,
+		&cfg.Project,
+		&cfg.PAT,
+		&user.DisplayName,
+		&user.Email,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return config.AzureCFG{}, models.CurrentUser{}, nil
+		}
+		return config.AzureCFG{}, models.CurrentUser{}, err
+	}
+
+	return cfg, user, nil
+}
+
+func (s *SQLiteStore) CheckAppState() (bool, config.AzureCFG, models.CurrentUser, error) {
+	cfg, user, err := s.GetAppData()
+	if err != nil {
+		return false, config.AzureCFG{}, models.CurrentUser{}, err
+	}
+
+	if cfg.Org == "" || cfg.Project == "" || cfg.PAT == "" {
+		return false, config.AzureCFG{}, models.CurrentUser{}, nil
+	}
+
+	if user.DisplayName == "" {
+		return false, config.AzureCFG{}, models.CurrentUser{}, nil
+	}
+
+	return true, cfg, user, nil
 }

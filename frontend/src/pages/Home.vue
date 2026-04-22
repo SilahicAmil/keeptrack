@@ -2,19 +2,26 @@
 import { onMounted, ref } from "vue";
 import { Events } from "@wailsio/runtime";
 import Button from "../components/ui/Button.vue";
+import { AzureDevopsService } from "../../bindings/changeme/internal/services";
 
 const tickets = ref([]);
+const loaded = ref(false);
 
 onMounted(async () => {
-  Events.On("tickets-updated", (newTickets) => {
-    tickets.value = newTickets.data;
-  });
+  const isLoaded = await AzureDevopsService.CheckAppState();
+
+  if (isLoaded) {
+    await AzureDevopsService.StartPolling();
+    router.push("/dashboard"); // auto go to dashboard
+  } else {
+    loaded.value = false;
+  }
 });
 </script>
 
 <template>
   <div
-    class="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-slate-100 via-slate-50 to-slate-200"
+    class="min-h-screen flex flex-col items-center justify-center p-6 bg-linear-to-br from-slate-100 via-slate-50 to-slate-200"
   >
     <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-6">
       <div class="text-center space-y-2">
@@ -28,25 +35,16 @@ onMounted(async () => {
           Connect an integration to start tracking your tickets.
         </p>
       </div>
-      <div class="flex justify-center">
+      <div v-if="!loaded" class="flex justify-center">
         <router-link to="/setup" class="cursor-pointer"
           ><Button variant="primary">Get Started</Button></router-link
         >
       </div>
+      <div v-if="loaded" class="flex justify-center">
+        <router-link to="/dashboard" class="cursor-pointer"
+          ><Button variant="primary">Continue</Button></router-link
+        >
+      </div>
     </div>
-
-    <!-- TODO: Remove Later. This is for testing only -->
-    <ul class="mt-8 w-full max-w-md">
-      <li v-for="ticket in tickets" :key="ticket.ID">
-        <strong>{{ ticket.Title }}</strong> - {{ ticket.State }}
-        <p>{{ ticket.Description }}</p>
-        <div v-if="ticket.PRLinks">
-          PRs:
-          <ul>
-            <li v-for="pr in ticket.PRLinks" :key="pr">{{ pr }}</li>
-          </ul>
-        </div>
-      </li>
-    </ul>
   </div>
 </template>

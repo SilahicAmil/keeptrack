@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 // import your page components
-import Home from "../pages/Home.vue";
 import AzureDevopsSetup from "../pages/AzureDevopsSetup.vue";
 import Setup from "@/pages/Setup.vue";
+import Dashboard from "@/pages/Dashboard.vue";
+import Home from "../pages/Home.vue";
 
 // define all your routes
 const routes = [
@@ -21,6 +22,11 @@ const routes = [
     path: "/azure",
     name: "azure",
     component: AzureDevopsSetup,
+  },
+  {
+    path: "/dashboard",
+    name: "dashboard",
+    component: Dashboard,
   },
 ];
 

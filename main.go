@@ -3,13 +3,18 @@ package main
 import (
 	"changeme/internal/services"
 	"changeme/store"
-	"context"
 	"embed"
 	_ "embed"
 	"log"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
+
+//
+// BEFORE RELEASE
+// TODO: Make all fmt.println's go to some type of log file
+// Store in same spot as DB?
+//
 
 // Wails uses Go's `embed` package to embed the frontend files into the binary.
 // Any files in the frontend/dist folder will be embedded into the binary and
@@ -31,14 +36,14 @@ func init() {
 // logs any error that might occur.
 func main() {
 
-	_, err := store.NewSQLiteStore()
+	sqliteStore, err := store.NewSQLiteStore()
 	if err != nil {
 		log.Fatal("Failed to initialize SQLite DB:", err)
 	}
 
 	// defer sqliteStore.Close() // if you add Close()
 
-	azure := services.NewAzureDevopsService()
+	azure := services.NewAzureDevopsService(sqliteStore)
 	// Create a new Wails application by providing the necessary options.
 	// Variables 'Name' and 'Description' are for application metadata.
 	// 'Assets' configures the asset server with the 'FS' variable pointing to the frontend files.
@@ -79,8 +84,6 @@ func main() {
 		// BackgroundColour: application.NewRGB(27, 38, 54),
 		URL: "/",
 	})
-
-	azure.Start(context.Background())
 
 	// Run the application. This blocks until the application has been exited.
 	err = app.Run()

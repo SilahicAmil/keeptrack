@@ -100,7 +100,7 @@ export function SendNotificationWithActions(options) {
  * @param {string} title
  * @param {string} body
  * @param {string} subtitle
- * @returns {$CancellablePromise<void>}
+ * @returns {$CancellablePromise<boolean>}
  */
 export function SystemNotification(id, title, body, subtitle) {
     return $Call.ByID(3315121798, id, title, body, subtitle);

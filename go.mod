@@ -4,7 +4,6 @@ go 1.25.0
 
 require (
 	github.com/grokify/html-strip-tags-go v0.1.0
-	github.com/joho/godotenv v1.5.1
 	github.com/wailsapp/wails/v3 v3.0.0-alpha.74
 	modernc.org/sqlite v1.48.0
 )

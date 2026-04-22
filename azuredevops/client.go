@@ -1,43 +1,83 @@
 package azuredevops
 
 import (
-	"changeme/store"
+	"changeme/config"
+	"changeme/internal/services/models"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
-	"os"
-
-	"github.com/joho/godotenv"
+	"io"
+	"net/http"
+	"strings"
 )
 
 type AzureDevopsClient struct {
+	cfg        *config.AzureCFG
+	baseURL    string
+	authHeader string
 }
 
-func (c *AzureDevopsClient) loadAndCreatePATAuth() (string, error) {
+func NewAzureDevopsClient(cfg *config.AzureCFG) *AzureDevopsClient {
 
-	err := godotenv.Load()
+	baseURL := fmt.Sprintf(
+		"https://dev.azure.com/%s/%s",
+		cfg.Org,
+		cfg.Project,
+	)
 
-	if err != nil {
-		return "", err
+	rawPAT := strings.TrimSpace(cfg.PAT)
+
+	auth := "Basic " + base64.StdEncoding.EncodeToString(
+		[]byte(":"+rawPAT),
+	)
+
+	return &AzureDevopsClient{
+		cfg:        cfg,
+		baseURL:    baseURL,
+		authHeader: auth,
 	}
-
-	azPat := os.Getenv("AZURE_PAT")
-
-	auth := base64.StdEncoding.EncodeToString([]byte(":" + azPat))
-
-	return auth, nil
 }
 
-func (c *AzureDevopsClient) ValidateConfig(cfg Config) error {
+func (c *AzureDevopsClient) ValidateConfig() error {
 	// just check the orgs endpoint for validation.
-	fmt.Println("Inside here all good", cfg)
+	fmt.Println("Inside here all good", c.cfg)
 	return nil
 }
 
-func (c *AzureDevopsClient) StoreConfig(cfg Config) error {
+func (c *AzureDevopsClient) FetchUser() (*models.CurrentUser, error) {
 
-	// Get all the values from config and save it to DB
-	// under config table
-	query := "INSERT INTO config (id, pat, org, project)"
-	_, err := store.DB.Exec(query, 1, cfg.PAT, cfg.Org, cfg.Project)
-	return err
+	url := fmt.Sprintf(
+		"https://dev.azure.com/%s/_apis/connectionData?api-version=7.1-preview.1",
+		c.cfg.Org,
+	)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Authorization", c.authHeader)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("azure error: %s - %s", resp.Status, string(body))
+	}
+
+	var conn models.ConnectionData
+	if err := json.Unmarshal(body, &conn); err != nil {
+		return nil, err
+	}
+
+	return &models.CurrentUser{
+		ID:          conn.AuthenticatedUser.ID,
+		DisplayName: conn.AuthenticatedUser.DisplayName,
+		Email:       conn.AuthenticatedUser.Properties.Account.Value,
+	}, nil
 }

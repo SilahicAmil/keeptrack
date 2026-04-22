@@ -2,13 +2,13 @@
 package poller
 
 import (
-	"changeme/azuredevops"
+	"changeme/internal/services/models"
 	"context"
 	"log"
 	"time"
 )
 
-func StartTicketPoller(ctx context.Context, interval time.Duration, fetch func() ([]azuredevops.Ticket, error), callback func([]azuredevops.Ticket)) {
+func StartTicketPoller(ctx context.Context, interval time.Duration, fetch func() ([]models.Ticket, error), callback func([]models.Ticket)) {
 	go func() {
 		ticker := time.NewTicker(interval)
 		defer ticker.Stop()
@@ -18,11 +18,16 @@ func StartTicketPoller(ctx context.Context, interval time.Duration, fetch func()
 				return
 			case <-ticker.C:
 				tickets, err := fetch()
-				if err == nil {
-					callback(tickets)
-				} else {
-					log.Fatal("error fetching tickets")
+
+				if err != nil {
+					log.Println("error fetching tickets:", err)
+					// Retry in 5 seconds?
+					time.Sleep(5 * time.Second)
+
+					continue
 				}
+
+				callback(tickets)
 			}
 		}
 	}()
