@@ -1,59 +1,74 @@
-# Welcome to Your New Wails3 Project!
+# keeptrack
 
-Congratulations on generating your Wails3 application! This README will guide you through the next steps to get your project up and running.
+Small desktop app that watches your Azure DevOps PRs and tickets in the background so you don't have to keep a browser tab open.
 
-## Getting Started
+Built with [Wails](https://v3.wails.io/) (Go + Vue).
 
-1. Navigate to your project directory in the terminal.
+## Install
 
-2. To run your application in development mode, use the following command:
+Head to the [releases page](https://github.com/SilahicAmil/keeptrack/releases) and grab the latest build for your OS:
 
-   ```
-   wails3 dev
-   ```
+- Windows: `keeptrack-windows-amd64.exe`
+- macOS: `keeptrack-macos-arm64`
+- Linux: `keeptrack-linux-amd64`
 
-   This will start your application and enable hot-reloading for both frontend and backend changes.
+Run it. First launch walks you through connecting Azure DevOps (org, project, and a PAT with read access to Work Items and Code).
 
-3. To build your application for production, use:
+## Contributing
 
-   ```
-   wails3 build
-   ```
+PRs welcome. Standard flow:
 
-   This will create a production-ready executable in the `build` directory.
+1. Fork the repo
+2. `git checkout -b your-branch`
+3. Commit your changes
+4. Push and [open a PR](https://github.com/SilahicAmil/keeptrack/compare) against `main`
 
-## Exploring Wails3 Features
+For anything bigger than a small fix, please [open an issue](https://github.com/SilahicAmil/keeptrack/issues) first.
 
-Now that you have your project set up, it's time to explore the features that Wails3 offers:
+## Running locally
 
-1. **Check out the examples**: The best way to learn is by example. Visit the `examples` directory in the `v3/examples` directory to see various sample applications.
+You'll need:
 
-2. **Run an example**: To run any of the examples, navigate to the example's directory and use:
+- [Go](https://go.dev/dl/) 1.25+
+- [Node.js](https://nodejs.org/) 20+
+- [Task](https://taskfile.dev/)
+- [Wails v3 CLI](https://v3.wails.io/getting-started/installation/): `go install -v github.com/wailsapp/wails/v3/cmd/wails3@latest`
+- On Linux: `libgtk-3-dev` and `libwebkit2gtk-4.1-dev`
 
-   ```
-   go run .
-   ```
+Then:
 
-   Note: Some examples may be under development during the alpha phase.
+```bash
+task dev      # hot-reloaded dev build
+task build    # production build into bin/
+```
 
-3. **Explore the documentation**: Visit the [Wails3 documentation](https://v3.wails.io/) for in-depth guides and API references.
+## Releases
 
-4. **Join the community**: Have questions or want to share your progress? Join the [Wails Discord](https://discord.gg/JDdSxwjhGf) or visit the [Wails discussions on GitHub](https://github.com/wailsapp/wails/discussions).
+Tagged pushes (`v*`) trigger [`.github/workflows/release.yml`](.github/workflows/release.yml), which builds binaries for Windows, macOS, and Linux and attaches them to a draft GitHub release.
 
-## Project Structure
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
 
-Take a moment to familiarize yourself with your project structure:
+## Project layout
 
-- `frontend/`: Contains your frontend code (HTML, CSS, JavaScript/TypeScript)
-- `main.go`: The entry point of your Go backend
-- `app.go`: Define your application structure and methods here
-- `wails.json`: Configuration file for your Wails project
+```
+azuredevops/   Azure DevOps API client
+config/        Config file handling
+internal/
+  services/    Wails services exposed to the frontend
+poller/        Background poller
+store/         SQLite cache
+frontend/      Vue 3 + Tailwind UI
+main.go        Entry point
+```
 
-## Next Steps
+## Built with
 
-1. Modify the frontend in the `frontend/` directory to create your desired UI.
-2. Add backend functionality in `main.go`.
-3. Use `wails3 dev` to see your changes in real-time.
-4. When ready, build your application with `wails3 build`.
-
-Happy coding with Wails3! If you encounter any issues or have questions, don't hesitate to consult the documentation or reach out to the Wails community.
+- [Wails v3](https://v3.wails.io/)
+- [Go](https://go.dev/)
+- [Vue 3](https://vuejs.org/) / [Vue Router](https://router.vuejs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Vite](https://vitejs.dev/)
+- [modernc.org/sqlite](https://pkg.go.dev/modernc.org/sqlite)
