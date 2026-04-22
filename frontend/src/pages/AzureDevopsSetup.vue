@@ -38,9 +38,6 @@ async function checkPat(validate: boolean) {
     }
 
     if (!validate) {
-      // Start polling before going to dashboard.
-      // Assume all good
-      await AzureDevopsService.StartPolling();
       router.push({ path: "/dashboard" });
     }
   } catch (e) {

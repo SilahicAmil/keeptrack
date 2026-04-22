@@ -11,8 +11,7 @@ onMounted(async () => {
   const isLoaded = await AzureDevopsService.CheckAppState();
 
   if (isLoaded) {
-    await AzureDevopsService.StartPolling();
-    router.push("/dashboard"); // auto go to dashboard
+    loaded.value = isLoaded;
   } else {
     loaded.value = false;
   }
@@ -25,15 +24,11 @@ onMounted(async () => {
   >
     <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-6">
       <div class="text-center space-y-2">
-        <div
-          class="mx-auto w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-white text-xl font-bold"
-        ></div>
-        <h1 class="text-2xl font-semibold text-slate-800">
-          Welcome to KeepTrack
-        </h1>
-        <p class="text-sm text-slate-600">
+        <h1 class="text-2xl font-semibold text-slate-800">Keeptrack.</h1>
+        <p v-if="!loaded" class="text-sm text-slate-600">
           Connect an integration to start tracking your tickets.
         </p>
+        <p v-if="loaded">Welcome Back. Let's get to work!</p>
       </div>
       <div v-if="!loaded" class="flex justify-center">
         <router-link to="/setup" class="cursor-pointer"

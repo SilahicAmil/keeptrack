@@ -4,6 +4,7 @@
   min-height: 100vh;
   background-color: #c9c8c7;
   overflow: hidden;
+  font-family: monospace;
 }
 
 body {

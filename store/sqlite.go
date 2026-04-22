@@ -5,8 +5,10 @@ import (
 	"changeme/internal/services/models"
 	"database/sql"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	_ "modernc.org/sqlite" // pure Go SQLite driver
 )
@@ -93,15 +95,21 @@ func (s *SQLiteStore) init() error {
 }
 
 func (s *SQLiteStore) StoreConfig(cfg config.AzureCFG) error {
-	// Insert into config
 
-	// TODO: Eventually store PAT into keyring
-	// This is fine for now I think
+	// TODO: Eventually store PAT into keyring. This is fine for now.
+
+	// Normalize Org/Project/PAT
+	pat := strings.TrimSpace(cfg.PAT)
+	org := url.PathEscape(strings.TrimSpace(cfg.Org))
+	project := url.PathEscape(strings.TrimSpace(cfg.Project))
+
+	// Insert into config
 	query := `
 		INSERT OR REPLACE INTO config (id, provider, pat, org, project)
 		VALUES (?, ?, ?, ?, ?)
 		`
-	_, err := s.db.Exec(query, 1, cfg.Provider, cfg.PAT, cfg.Org, cfg.Project)
+	_, err := s.db.Exec(query, 1, cfg.Provider, pat, org, project)
+
 	return err
 }
 
@@ -137,8 +145,8 @@ func (s *SQLiteStore) SaveTickets(tickets []models.Ticket) error {
 			query,
 			t.ID,
 			t.Title,
-			t.Description,
 			t.State,
+			t.Description,
 			t.Tags,
 			t.AssignedTo,
 			t.IsAssignedToMe,
