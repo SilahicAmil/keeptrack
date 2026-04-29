@@ -15,12 +15,13 @@ import (
 )
 
 type AzureDevopsService struct {
-	client      *azuredevops.AzureDevopsClient
-	store       *store.SQLiteStore
-	azureCFG    config.AzureCFG
-	currentUser *models.CurrentUser
-	isPolling   bool
-	stopPoll    context.CancelFunc
+	client         *azuredevops.AzureDevopsClient
+	store          *store.SQLiteStore
+	azureCFG       config.AzureCFG
+	currentUser    *models.CurrentUser
+	isPolling      bool
+	stopPoll       context.CancelFunc
+	prCommentCache map[int]int
 	// ticketStore  *store.TicketStore
 	// prStore      *store.PRStore
 	// pollInterval time.Duration
@@ -34,8 +35,9 @@ type AzureDevopsService struct {
 
 func NewAzureDevopsService(store *store.SQLiteStore) *AzureDevopsService {
 	return &AzureDevopsService{
-		client: &azuredevops.AzureDevopsClient{},
-		store:  store,
+		client:         &azuredevops.AzureDevopsClient{},
+		store:          store,
+		prCommentCache: make(map[int]int),
 	}
 }
 
@@ -43,15 +45,45 @@ func (s *AzureDevopsService) Start(ctx context.Context) {
 	app := application.Get() // safe here
 
 	//
-	// TODO : UPDATE TIME BEFORE RELASE - IMPORTANT
+	// TODO : UPDATE TIME BEFORE RELASE - IMPORTANT. Future make this an app settings
 	//
-	go poller.StartTicketPoller(ctx, 30*time.Second, s.FetchAssignedTickets, func(tickets []models.Ticket) {
+	go poller.StartPoller(ctx, 30*time.Second, s.FetchAssignedTickets, func(tickets []models.Ticket) {
 		fmt.Println("This fired")
 		fmt.Println("tickets", tickets)
 		app.Event.Emit("tickets-updated", tickets)
 
 	})
+
+	// go poller.StartPoller(ctx, 60*time.Second, s.FetchActivePRs, func(prs []models.PullRequest) {
+	// 	app.Event.Emit("pr-updated", prs)
+	// })
 }
+
+// ------ PULL REQUESTS ------
+
+func (s *AzureDevopsService) FetchActivePRs() ([]models.PullRequest, error) {
+	return s.client.FetchActivePRs(s.currentUser)
+}
+
+func (s *AzureDevopsService) filterChangedPRs(
+	prs []models.PullRequest,
+) []models.PullRequest {
+
+	var changed []models.PullRequest
+
+	for _, pr := range prs {
+		prev, exists := s.prCommentCache[pr.ID]
+
+		if !exists || pr.CommentCount != prev {
+			s.prCommentCache[pr.ID] = pr.CommentCount
+			changed = append(changed, pr)
+		}
+	}
+
+	return changed
+}
+
+// ------ TICKETS ------
 
 func (s *AzureDevopsService) FetchAssignedTickets() ([]models.Ticket, error) {
 	return s.client.FetchAssignedTickets(s.currentUser, s.store)
@@ -62,6 +94,8 @@ func (s *AzureDevopsService) FetchAssignedTicketsCache() ([]models.Ticket, error
 	return s.client.FetchAssignedTicketsCache()
 
 }
+
+// ------ APP STATE ------
 
 func (s *AzureDevopsService) InitializeApp(cfg config.AzureCFG) ([]models.Ticket, error) {
 	s.azureCFG = cfg

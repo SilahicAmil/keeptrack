@@ -2,33 +2,35 @@
 package poller
 
 import (
-	"changeme/internal/services/models"
 	"context"
 	"log"
 	"time"
 )
 
-func StartTicketPoller(ctx context.Context, interval time.Duration, fetch func() ([]models.Ticket, error), callback func([]models.Ticket)) {
-	go func() {
-		ticker := time.NewTicker(interval)
-		defer ticker.Stop()
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-				tickets, err := fetch()
+// Generic poller
+func StartPoller[T any](
+	ctx context.Context,
+	interval time.Duration,
+	fetch func() (T, error),
+	callback func(T),
+) {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
 
-				if err != nil {
-					log.Println("error fetching tickets:", err)
-					// Retry in 5 seconds?
-					time.Sleep(5 * time.Second)
+	for {
+		select {
+		case <-ctx.Done():
+			return
 
-					continue
-				}
-
-				callback(tickets)
+		case <-ticker.C:
+			data, err := fetch()
+			if err != nil {
+				log.Println("poller error:", err)
+				time.Sleep(5 * time.Second)
+				continue
 			}
+
+			callback(data)
 		}
-	}()
+	}
 }

@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 // Structs for PR, Tickets, Reviewer, Comments, Status/Column and anything else
 
 type Ticket struct {
@@ -13,6 +15,15 @@ type Ticket struct {
 	ChangedDate      string `json:"ChangedDate"`
 	LastNotifiedDate string `json:"LastNotifiedDate"`
 	PRIds            []int  `json:"PRIds"`
+}
+
+type PullRequest struct {
+	ID           int
+	RepoID       string
+	Title        string
+	State        string
+	CommentCount int
+	UpdatedAt    time.Time
 }
 
 type CurrentUser struct {

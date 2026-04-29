@@ -84,6 +84,8 @@ jobs:
               cp bin/keeptrack.exe "dist/${{ matrix.artifact }}"
               ;;
             macos-latest)
+              codesign --force --deep --sign - bin/keeptrack.app
+              codesign --verify --deep --strict bin/keeptrack.app
               create-dmg \
                 --volname "keeptrack" \
                 --window-pos 200 120 \
