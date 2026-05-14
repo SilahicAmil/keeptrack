@@ -7,13 +7,6 @@ defineProps<{
 }>();
 
 function openTicket(ticketID: number) {
-  console.log("here?", ticketID);
-  // TODO:
-  // We need to pass the ticket.ID
-  // to the Browser service
-  // Get the org and project and construct the URL to the ticket
-  // URL goes dev.azure.com/<org>/<project>/_workitems/<ticketID>
-  // This should be straightforward I think
   AzureDevopsService.OpenTicket(ticketID);
 }
 </script>

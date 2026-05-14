@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { timeAgo } from "../../utils/status";
+import { AzureDevopsService } from "../../../bindings/changeme/internal/services";
 
 const props = defineProps<{
   activity: any[];
@@ -13,14 +14,19 @@ const emit = defineEmits<{
 onMounted(() => {
   emit("viewed");
 });
+
+function openTicket(ticketID: number) {
+  AzureDevopsService.OpenTicket(ticketID);
+}
 </script>
 
 <template>
   <div>
     <div
+      @click="openTicket(item.id)"
       v-for="item in activity"
       :key="item.id + item.time"
-      class="px-5 py-3 border-b border-slate-700/20 hover:bg-slate-800/30 transition"
+      class="px-5 py-3 border-b border-slate-700/20 hover:bg-slate-800/30 transition cursor-pointer"
     >
       <div class="flex items-start gap-3">
         <div
