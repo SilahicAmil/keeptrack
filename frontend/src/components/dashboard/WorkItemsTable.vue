@@ -1,17 +1,13 @@
 <script setup lang="ts">
 import { Browser } from "@wailsio/runtime";
+import { AzureDevopsService } from "../../../bindings/changeme/internal/services";
 
 defineProps<{
   tickets: any[];
 }>();
 
-function openTicket() {
-  // TODO:
-  // We need to pass the ticket.ID
-  // to the Browser service
-  // Get the org and project and construct the URL to the ticket
-  // URL goes dev.azure.com/<org>/<project>/_workitems/<ticketID>
-  // This should be straightforward I think
+function openTicket(ticketID: number) {
+  AzureDevopsService.OpenTicket(ticketID);
 }
 </script>
 
@@ -30,6 +26,7 @@ function openTicket() {
 
     <!-- Table Rows -->
     <div
+      @click="openTicket(ticket.ID)"
       v-for="ticket in tickets"
       :key="ticket.ID"
       class="grid grid-cols-[120px_160px_1fr_80px_40px] items-center px-5 py-3 border-b border-slate-700/20 hover:bg-slate-800/30 transition cursor-pointer"

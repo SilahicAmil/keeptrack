@@ -49,6 +49,14 @@ export function InitializeApp(cfg) {
 }
 
 /**
+ * @param {number} id
+ * @returns {$CancellablePromise<void>}
+ */
+export function OpenTicket(id) {
+    return $Call.ByID(1112541837, id);
+}
+
+/**
  * @returns {$CancellablePromise<void>}
  */
 export function Start() {

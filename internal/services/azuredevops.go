@@ -149,3 +149,16 @@ func (s *AzureDevopsService) CheckAppState() (bool, error) {
 
 	return true, nil
 }
+
+func (s *AzureDevopsService) OpenTicket(id int) {
+	app := application.Get()
+
+	fmt.Println("azurecfg", s.client.BaseURL)
+
+	ticketURL := fmt.Sprintf("%s/_workitems/edit/%d", s.client.BaseURL, id)
+	err := app.Browser.OpenURL(ticketURL)
+
+	if err != nil {
+		app.Logger.Error("failed to open link", "error", err)
+	}
+}
