@@ -12,9 +12,9 @@ import (
 )
 
 type AzureDevopsClient struct {
-	cfg        *config.AzureCFG
-	baseURL    string
-	authHeader string
+	CFG        *config.AzureCFG
+	BaseURL    string
+	AuthHeader string
 }
 
 func NewAzureDevopsClient(cfg *config.AzureCFG) *AzureDevopsClient {
@@ -32,15 +32,15 @@ func NewAzureDevopsClient(cfg *config.AzureCFG) *AzureDevopsClient {
 	)
 
 	return &AzureDevopsClient{
-		cfg:        cfg,
-		baseURL:    baseURL,
-		authHeader: auth,
+		CFG:        cfg,
+		BaseURL:    baseURL,
+		AuthHeader: auth,
 	}
 }
 
 func (c *AzureDevopsClient) ValidateConfig() error {
 	// just check the orgs endpoint for validation.
-	fmt.Println("Inside here all good", c.cfg)
+	fmt.Println("Inside here all good", c.CFG)
 	return nil
 }
 
@@ -48,7 +48,7 @@ func (c *AzureDevopsClient) FetchUser() (*models.CurrentUser, error) {
 
 	url := fmt.Sprintf(
 		"https://dev.azure.com/%s/_apis/connectionData?api-version=7.1-preview.1",
-		c.cfg.Org,
+		c.CFG.Org,
 	)
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -56,7 +56,7 @@ func (c *AzureDevopsClient) FetchUser() (*models.CurrentUser, error) {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", c.authHeader)
+	req.Header.Set("Authorization", c.AuthHeader)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

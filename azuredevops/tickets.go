@@ -17,8 +17,8 @@ func (c *AzureDevopsClient) queryAssignedWorkItems() ([]int, error) {
 
 	base := fmt.Sprintf(
 		"https://dev.azure.com/%s/%s",
-		c.cfg.Org,
-		c.cfg.Project,
+		c.CFG.Org,
+		c.CFG.Project,
 	)
 
 	url := base + "/_apis/wit/wiql?api-version=7.1"
@@ -32,7 +32,7 @@ func (c *AzureDevopsClient) queryAssignedWorkItems() ([]int, error) {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", c.authHeader)
+	req.Header.Set("Authorization", c.AuthHeader)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
@@ -105,8 +105,8 @@ func (c *AzureDevopsClient) queryAssignedWorkItemsData(user *models.CurrentUser)
 
 	baseURL := fmt.Sprintf(
 		"https://dev.azure.com/%s/%s/_apis/wit/workitems",
-		c.cfg.Org,
-		c.cfg.Project,
+		c.CFG.Org,
+		c.CFG.Project,
 	)
 
 	fields := strings.Join([]string{
@@ -132,7 +132,7 @@ func (c *AzureDevopsClient) queryAssignedWorkItemsData(user *models.CurrentUser)
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", c.authHeader)
+	req.Header.Set("Authorization", c.AuthHeader)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
