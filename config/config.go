@@ -1,5 +1,10 @@
 package config
 
+import (
+	"os"
+	"path/filepath"
+)
+
 type AzureCFG struct {
 	Provider string `json:"provider"`
 	PAT      string `json:"pat"`
@@ -24,3 +29,19 @@ type JiraCFG struct {
 // func (c *CFG) IsJira() bool {
 // 	return c.Provider == "jira"
 // }
+
+func SetUserAppDir() (string, error) {
+	configDir, err := os.UserConfigDir()
+
+	if err != nil {
+		return "", err
+	}
+
+	appDir := filepath.Join(configDir, "keeptrack")
+
+	if err := os.MkdirAll(appDir, os.ModePerm); err != nil {
+		return "", err
+	}
+
+	return appDir, nil
+}
