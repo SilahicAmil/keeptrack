@@ -5,11 +5,11 @@ import {
   FetchAssignedTicketsCache,
   StartPolling,
 } from "../../bindings/changeme/internal/services/azuredevopsservice";
-import { NotificationService } from "../../bindings/changeme/internal/services";
 import Navbar from "../components/ui/Navbar.vue";
 import TabBar from "../components/dashboard/TabBar.vue";
 import WorkItemsTable from "../components/dashboard/WorkItemsTable.vue";
 import ActivityFeed from "../components/dashboard/ActivityFeed.vue";
+import { NotificationService } from "../../bindings/changeme/internal/services";
 
 const tickets = ref<any[]>([]);
 const notifiedAt = new Map<string, string>(); // ticket ID -> ChangedDate

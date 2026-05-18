@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/wailsapp/wails/v3/pkg/services/notifications"
 )
 
@@ -15,7 +17,6 @@ func NewNotificationService() *NotificationService {
 }
 
 func (n *NotificationService) SystemNotification(id, title, body, subtitle string) (bool, error) {
-
 	authorized, err := n.CheckNotificationAuthorization()
 	if err != nil {
 		return false, err
@@ -24,21 +25,22 @@ func (n *NotificationService) SystemNotification(id, title, body, subtitle strin
 	if !authorized {
 		authorized, err = n.RequestNotificationAuthorization()
 		if err != nil {
-			return false, err
+			return false, fmt.Errorf("request notification authorization failed: %w", err)
 		}
-
-		// still not authorized → stop here
 		if !authorized {
 			return false, nil
 		}
 	}
 
-	n.SendNotification(notifications.NotificationOptions{
+	err = n.SendNotification(notifications.NotificationOptions{
 		ID:       id,
 		Title:    title,
 		Body:     body,
 		Subtitle: subtitle,
 	})
+	if err != nil {
+		return false, fmt.Errorf("send notification failed: %w", err)
+	}
 
 	return true, nil
 }
