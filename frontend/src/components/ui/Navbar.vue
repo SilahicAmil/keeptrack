@@ -1,7 +1,17 @@
 <script setup>
+import { NotificationService } from "../../../bindings/changeme/internal/services";
 import { ref } from "vue";
 
 const searchQuery = ref("");
+
+async function enableNotifications() {
+  await NotificationService.SystemNotification(
+    "init",
+    "Notifications enabled",
+    "You’ll now receive updates",
+    "",
+  );
+}
 </script>
 
 <template>
@@ -17,6 +27,7 @@ const searchQuery = ref("");
       >
     </div>
 
+    <Button @click="enableNotifications"> Enable Notifications </Button>
     <div class="flex-1 max-w-md mx-8">
       <div class="relative">
         <svg
