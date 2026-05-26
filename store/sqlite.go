@@ -163,7 +163,6 @@ func (s *SQLiteStore) SaveTickets(tickets []models.Ticket) error {
 }
 
 func (s *SQLiteStore) GetAppData() (config.AzureCFG, models.CurrentUser, error) {
-
 	// TODO: Get PAT from keyring
 	query := `
 	SELECT org, project, pat, display_name, email
