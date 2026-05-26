@@ -2,6 +2,7 @@ package store
 
 import (
 	"changeme/config"
+	"changeme/internal/logger"
 	"changeme/internal/services/models"
 	"database/sql"
 	"fmt"
@@ -164,6 +165,7 @@ func (s *SQLiteStore) SaveTickets(tickets []models.Ticket) error {
 
 func (s *SQLiteStore) GetAppData() (config.AzureCFG, models.CurrentUser, error) {
 
+	logger.Error("test error", "GetAppData")
 	// TODO: Get PAT from keyring
 	query := `
 	SELECT org, project, pat, display_name, email
