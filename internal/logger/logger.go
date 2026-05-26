@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"changeme/config"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -30,15 +31,9 @@ func (l *LogEntry) formatLog() string {
 
 func (l *LogEntry) WriteLog() error {
 
-	configDir, err := os.UserConfigDir()
+	appDir, err := config.SetUserAppDir()
 
 	if err != nil {
-		return err
-	}
-
-	appDir := filepath.Join(configDir, "keeptrack")
-
-	if err := os.MkdirAll(appDir, os.ModePerm); err != nil {
 		return err
 	}
 
