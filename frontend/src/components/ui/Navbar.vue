@@ -27,7 +27,7 @@ async function enableNotifications() {
       >
     </div>
 
-    <Button @click="enableNotifications"> Enable Notifications </Button>
+    <!-- <Button @click="enableNotifications"> Enable Notifications </Button> -->
     <div class="flex-1 max-w-md mx-8">
       <div class="relative">
         <svg
