@@ -15,7 +15,7 @@ function continueSetup() {
       break;
 
     default:
-      error.value = "Please Sselect an Integration to Continue";
+      error.value = "Please Select an Integration to Continue";
       break;
   }
 }

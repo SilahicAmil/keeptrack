@@ -9,7 +9,7 @@ defineEmits<{
 
 const tabs = [
   { key: "workItems", label: "Work Items" },
-  { key: "codeReviews", label: "Code Reviews" },
+  { key: "pullRequests", label: "Pull Requests" },
   { key: "activity", label: "Activity" },
 ];
 </script>

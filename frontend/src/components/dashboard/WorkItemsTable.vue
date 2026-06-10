@@ -34,7 +34,9 @@ function openTicket(ticketID: number) {
       <span class="text-sm text-slate-300 font-mono"
         >#&nbsp;{{ ticket.ID }}</span
       >
-      <span class="text-sm text-slate-200">{{ ticket.Title }}</span>
+      <span class="text-sm text-slate-200"
+        >{{ ticket.Title.substring(0, 25) }}...</span
+      >
       <span class="text-sm text-slate-300 font-mono truncate">{{
         ticket.Description
       }}</span>

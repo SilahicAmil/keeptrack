@@ -10,6 +10,9 @@ const loaded = ref(false);
 onMounted(async () => {
   const isLoaded = await AzureDevopsService.CheckAppState();
 
+  // we should also validate config
+  // here that way we can just have the user update their PAT here.
+
   if (isLoaded) {
     loaded.value = isLoaded;
   } else {

@@ -58,7 +58,7 @@ async function notify(ticket: any) {
   await NotificationService.SystemNotification(
     `${ticket.ID}`,
     "New Update for your work item",
-    `Ticket #${ticket.ID} has been updated`,
+    `Ticket #${ticket.ID} - ${ticket.Title.substring(0, 25)}, has some updates, Check it out!`,
     "",
   );
   addActivity(ticket, `Something has been updated. Check it out!`);
@@ -106,10 +106,10 @@ onMounted(async () => {
           <WorkItemsTable v-if="activeTab === 'workItems'" :tickets="tickets" />
 
           <div
-            v-if="activeTab === 'codeReviews'"
+            v-if="activeTab === 'pullRequests'"
             class="px-5 py-12 text-center text-slate-500 text-sm"
           >
-            Code reviews coming soon.
+            Pull Request Tracking Coming Soon!
           </div>
 
           <ActivityFeed
