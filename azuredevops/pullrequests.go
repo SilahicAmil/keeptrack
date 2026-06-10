@@ -18,8 +18,10 @@ func (c *AzureDevopsClient) FetchPullRequests() ([]models.PullRequest, error) {
 	//   &searchCriteria.status=active
 	//   &api-version=7.1
 
+	// Get the user id. FIrst we need to store it lol.
+
 	PRUrl := fmt.Sprintf("%s/_apis/git/pullrequests?searchCriteria.creatorId=%s&searchCriteria.status=active&api-version=7.1",
-		c.BaseURL, "e4c82818-bb37-6d52-881a-2092fae5fc73")
+		c.BaseURL, c.User.ID)
 
 	req, err := http.NewRequest("GET", PRUrl, nil)
 	if err != nil {

@@ -69,7 +69,12 @@ func (s *AzureDevopsService) FetchAssignedTicketsCache() ([]models.Ticket, error
 func (s *AzureDevopsService) InitializeApp(cfg config.AzureCFG) ([]models.Ticket, error) {
 	s.azureCFG = cfg
 
-	s.client = azuredevops.NewAzureDevopsClient(&cfg)
+	user, err := s.client.FetchUser()
+	if err != nil {
+		return nil, err
+	}
+
+	s.client = azuredevops.NewAzureDevopsClient(&cfg, user)
 
 	if err := s.client.ValidateConfig(); err != nil {
 		return nil, err
@@ -82,11 +87,6 @@ func (s *AzureDevopsService) InitializeApp(cfg config.AzureCFG) ([]models.Ticket
 
 	// Save config
 	if err := s.store.StoreConfig(cfg); err != nil {
-		return nil, err
-	}
-
-	user, err := s.client.FetchUser()
-	if err != nil {
 		return nil, err
 	}
 
@@ -145,7 +145,7 @@ func (s *AzureDevopsService) CheckAppState() (bool, error) {
 	}
 
 	// use cfg directly (no need to rebuild)
-	s.client = azuredevops.NewAzureDevopsClient(&cfg)
+	s.client = azuredevops.NewAzureDevopsClient(&cfg, &user)
 
 	// store user in memory
 	s.currentUser = &user
@@ -176,6 +176,5 @@ func (s *AzureDevopsService) OpenPR(id int) {
 }
 
 func (s *AzureDevopsService) FetchPullRequests() ([]models.PullRequest, error) {
-	fmt.Println("hit this ")
 	return s.client.FetchPullRequests()
 }
