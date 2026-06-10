@@ -10,7 +10,7 @@ import (
 // Fetch PRs for ticket(s), reviewers, threads
 
 // Fetch ALL active PR's for the user
-func (c *AzureDevopsClient) FetchPullRequests() ([]models.PullRequest, error) {
+func (c *AzureDevopsClient) FetchPullRequests(userID string) ([]models.PullRequest, error) {
 	// Get all PRs for now
 
 	// GET https://dev.azure.com/{org}/{project}/_apis/git/pullrequests
@@ -21,7 +21,7 @@ func (c *AzureDevopsClient) FetchPullRequests() ([]models.PullRequest, error) {
 	// Get the user id. FIrst we need to store it lol.
 
 	PRUrl := fmt.Sprintf("%s/_apis/git/pullrequests?searchCriteria.creatorId=%s&searchCriteria.status=active&api-version=7.1",
-		c.BaseURL, c.User.ID)
+		c.BaseURL, userID)
 
 	req, err := http.NewRequest("GET", PRUrl, nil)
 	if err != nil {

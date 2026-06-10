@@ -15,10 +15,9 @@ type AzureDevopsClient struct {
 	CFG        *config.AzureCFG
 	BaseURL    string
 	AuthHeader string
-	User       *models.CurrentUser
 }
 
-func NewAzureDevopsClient(cfg *config.AzureCFG, user *models.CurrentUser) *AzureDevopsClient {
+func NewAzureDevopsClient(cfg *config.AzureCFG) *AzureDevopsClient {
 
 	baseURL := fmt.Sprintf(
 		"https://dev.azure.com/%s/%s",
@@ -36,7 +35,6 @@ func NewAzureDevopsClient(cfg *config.AzureCFG, user *models.CurrentUser) *Azure
 		CFG:        cfg,
 		BaseURL:    baseURL,
 		AuthHeader: auth,
-		User:       user,
 	}
 }
 

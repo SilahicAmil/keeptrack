@@ -124,6 +124,8 @@ func (s *SQLiteStore) SaveUserToConfig(user *models.CurrentUser) error {
 	`
 
 	_, err := s.db.Exec(query, user.Email, user.DisplayName, user.ID)
+
+	s.SaveUser(user)
 	return err
 }
 
