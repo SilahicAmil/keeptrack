@@ -68,7 +68,7 @@ func (s *AzureDevopsService) InitializeApp(cfg config.AzureCFG) ([]models.Ticket
 
 	s.client = azuredevops.NewAzureDevopsClient(&cfg)
 
-	if err := s.client.ValidateConfig(); err != nil {
+	if err, _ := s.client.ValidateConfig(); err != nil {
 		return nil, err
 	}
 
@@ -161,4 +161,8 @@ func (s *AzureDevopsService) OpenTicket(id int) {
 	if err != nil {
 		app.Logger.Error("failed to open link", "error", err)
 	}
+}
+
+func (s *AzureDevopsService) ValidateConfig() (error, bool) {
+	return s.client.ValidateConfig()
 }

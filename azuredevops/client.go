@@ -38,7 +38,7 @@ func NewAzureDevopsClient(cfg *config.AzureCFG) *AzureDevopsClient {
 	}
 }
 
-func (c *AzureDevopsClient) ValidateConfig() error {
+func (c *AzureDevopsClient) ValidateConfig() (error, bool) {
 	// just check the orgs endpoint for validation.
 	fmt.Println("Inside here all good", c.CFG)
 
@@ -49,23 +49,24 @@ func (c *AzureDevopsClient) ValidateConfig() error {
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return err
+		return err, false
 	}
 
 	req.Header.Set("Authorization", c.AuthHeader)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return err
+		return err, false
 	}
 	defer resp.Body.Close()
 
 	body, _ := io.ReadAll(resp.Body)
 
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("azure error: %s - %s", resp.Status, string(body))
+		return fmt.Errorf("azure error: %s - %s", resp.Status, string(body)), false
 	}
-	return nil
+
+	return nil, true
 }
 
 func (c *AzureDevopsClient) FetchUser() (*models.CurrentUser, error) {

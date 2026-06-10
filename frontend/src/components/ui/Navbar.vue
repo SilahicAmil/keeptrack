@@ -53,7 +53,7 @@ async function enableNotifications() {
       </div>
     </div>
 
-    <!-- TODO: On Click have dropdown to update PAT/ORG/PROJECT. Need to indicate when it's expired. -->
+    <!-- TODO: On Click have dropdown to update PAT/ORG/PROJECT -->
     <div class="flex items-center gap-3">
       <div
         class="w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center"

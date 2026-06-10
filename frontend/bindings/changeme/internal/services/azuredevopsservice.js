@@ -70,6 +70,13 @@ export function StartPolling() {
     return $Call.ByID(1840371022);
 }
 
+/**
+ * @returns {$CancellablePromise<boolean>}
+ */
+export function ValidateConfig() {
+    return $Call.ByID(4044659485);
+}
+
 // Private type creation functions
 const $$createType0 = models$0.Ticket.createFrom;
 const $$createType1 = $Create.Array($$createType0);
