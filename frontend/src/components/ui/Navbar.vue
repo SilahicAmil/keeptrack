@@ -37,7 +37,7 @@ async function FetchPRs() {
     </div>
 
     <!-- <Button @click="enableNotifications"> Enable Notifications </Button> -->
-    <Button @click="FetchPRs">Fetch PR</Button>
+    <!-- <Button @click="FetchPRs">Fetch PR</Button> -->
     <div class="flex-1 max-w-md mx-8">
       <div class="relative">
         <svg
