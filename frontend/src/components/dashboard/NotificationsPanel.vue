@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { statusDotColor, timeAgo } from "../../utils/status";
+import { timeAgo } from "../../utils/status";
 
 defineProps<{
   notifications: any[];
@@ -29,10 +29,7 @@ defineProps<{
           class="px-5 py-3 hover:bg-slate-800/30 transition"
         >
           <div class="flex items-start gap-3">
-            <div
-              class="mt-1 w-2 h-2 rounded-full shrink-0"
-              :class="statusDotColor(notif.state)"
-            ></div>
+            <div class="mt-1 w-2 h-2 rounded-full shrink-0"></div>
             <div class="min-w-0">
               <p class="text-sm text-white font-medium">
                 {{ notif.ticketId }} updated

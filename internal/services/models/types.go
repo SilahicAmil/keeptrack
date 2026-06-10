@@ -12,13 +12,39 @@ type Ticket struct {
 	IsAssignedToMe   bool   `json:"IsAssignedToMe"`
 	ChangedDate      string `json:"ChangedDate"`
 	LastNotifiedDate string `json:"LastNotifiedDate"`
-	PRIds            []int  `json:"PRIds"`
+	// PRIds            []int  `json:"PRIds"`
 }
 
 type CurrentUser struct {
 	ID          string `json:"id"`
 	DisplayName string `json:"displayName"`
 	Email       string `json:"emailAddress"`
+}
+
+type PullRequest struct {
+	ID          int         `json:"ID"`
+	Status      string      `json:"Status"`
+	Title       string      `json:"Title"`
+	Description string      `json:"Description"`
+	Reviewers   []Reviewers `json:"Reviewers"`
+}
+
+type PullRequestResponse struct {
+	Value []struct {
+		ID          int    `json:"pullRequestId"`
+		Status      string `json:"status"`
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		Reviewers   []struct {
+			DisplayName string `json:"displayName"`
+			Vote        int    `json:"vote"`
+		} `json:"reviewers"`
+	} `json:"value"`
+}
+
+type Reviewers struct {
+	DisplayName string
+	Vote        int
 }
 
 type ConnectionData struct {

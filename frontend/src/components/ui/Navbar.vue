@@ -1,6 +1,10 @@
 <script setup>
-import { NotificationService } from "../../../bindings/changeme/internal/services";
+import {
+  AzureDevopsService,
+  NotificationService,
+} from "../../../bindings/changeme/internal/services";
 import { ref } from "vue";
+import Button from "./Button.vue";
 
 const searchQuery = ref("");
 
@@ -11,6 +15,11 @@ async function enableNotifications() {
     "You’ll now receive updates",
     "",
   );
+}
+
+async function FetchPRs() {
+  const prs = await AzureDevopsService.FetchPullRequests();
+  console.log("prs", prs);
 }
 </script>
 
@@ -28,6 +37,7 @@ async function enableNotifications() {
     </div>
 
     <!-- <Button @click="enableNotifications"> Enable Notifications </Button> -->
+    <Button @click="FetchPRs">Fetch PR</Button>
     <div class="flex-1 max-w-md mx-8">
       <div class="relative">
         <svg

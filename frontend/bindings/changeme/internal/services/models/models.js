@@ -6,6 +6,101 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
+export class PullRequest {
+    /**
+     * Creates a new PullRequest instance.
+     * @param {Partial<PullRequest>} [$$source = {}] - The source object to create the PullRequest.
+     */
+    constructor($$source = {}) {
+        if (!("ID" in $$source)) {
+            /**
+             * @member
+             * @type {number}
+             */
+            this["ID"] = 0;
+        }
+        if (!("Status" in $$source)) {
+            /**
+             * @member
+             * @type {string}
+             */
+            this["Status"] = "";
+        }
+        if (!("Title" in $$source)) {
+            /**
+             * @member
+             * @type {string}
+             */
+            this["Title"] = "";
+        }
+        if (!("Description" in $$source)) {
+            /**
+             * @member
+             * @type {string}
+             */
+            this["Description"] = "";
+        }
+        if (!("Reviewers" in $$source)) {
+            /**
+             * @member
+             * @type {Reviewers[]}
+             */
+            this["Reviewers"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new PullRequest instance from a string or object.
+     * @param {any} [$$source = {}]
+     * @returns {PullRequest}
+     */
+    static createFrom($$source = {}) {
+        const $$createField4_0 = $$createType1;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("Reviewers" in $$parsedSource) {
+            $$parsedSource["Reviewers"] = $$createField4_0($$parsedSource["Reviewers"]);
+        }
+        return new PullRequest(/** @type {Partial<PullRequest>} */($$parsedSource));
+    }
+}
+
+export class Reviewers {
+    /**
+     * Creates a new Reviewers instance.
+     * @param {Partial<Reviewers>} [$$source = {}] - The source object to create the Reviewers.
+     */
+    constructor($$source = {}) {
+        if (!("DisplayName" in $$source)) {
+            /**
+             * @member
+             * @type {string}
+             */
+            this["DisplayName"] = "";
+        }
+        if (!("Vote" in $$source)) {
+            /**
+             * @member
+             * @type {number}
+             */
+            this["Vote"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Reviewers instance from a string or object.
+     * @param {any} [$$source = {}]
+     * @returns {Reviewers}
+     */
+    static createFrom($$source = {}) {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new Reviewers(/** @type {Partial<Reviewers>} */($$parsedSource));
+    }
+}
+
 export class Ticket {
     /**
      * Creates a new Ticket instance.
@@ -75,13 +170,6 @@ export class Ticket {
              */
             this["LastNotifiedDate"] = "";
         }
-        if (!("PRIds" in $$source)) {
-            /**
-             * @member
-             * @type {number[]}
-             */
-            this["PRIds"] = [];
-        }
 
         Object.assign(this, $$source);
     }
@@ -92,14 +180,11 @@ export class Ticket {
      * @returns {Ticket}
      */
     static createFrom($$source = {}) {
-        const $$createField9_0 = $$createType0;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
-        if ("PRIds" in $$parsedSource) {
-            $$parsedSource["PRIds"] = $$createField9_0($$parsedSource["PRIds"]);
-        }
         return new Ticket(/** @type {Partial<Ticket>} */($$parsedSource));
     }
 }
 
 // Private type creation functions
-const $$createType0 = $Create.Array($Create.Any);
+const $$createType0 = Reviewers.createFrom;
+const $$createType1 = $Create.Array($$createType0);

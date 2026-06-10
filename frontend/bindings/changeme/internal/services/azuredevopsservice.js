@@ -39,6 +39,15 @@ export function FetchAssignedTicketsCache() {
 }
 
 /**
+ * @returns {$CancellablePromise<models$0.PullRequest[]>}
+ */
+export function FetchPullRequests() {
+    return $Call.ByID(1472950438).then(/** @type {($result: any) => any} */(($result) => {
+        return $$createType3($result);
+    }));
+}
+
+/**
  * @param {config$0.AzureCFG} cfg
  * @returns {$CancellablePromise<models$0.Ticket[]>}
  */
@@ -46,6 +55,14 @@ export function InitializeApp(cfg) {
     return $Call.ByID(1653907426, cfg).then(/** @type {($result: any) => any} */(($result) => {
         return $$createType1($result);
     }));
+}
+
+/**
+ * @param {number} id
+ * @returns {$CancellablePromise<void>}
+ */
+export function OpenPR(id) {
+    return $Call.ByID(1901313391, id);
 }
 
 /**
@@ -73,3 +90,5 @@ export function StartPolling() {
 // Private type creation functions
 const $$createType0 = models$0.Ticket.createFrom;
 const $$createType1 = $Create.Array($$createType0);
+const $$createType2 = models$0.PullRequest.createFrom;
+const $$createType3 = $Create.Array($$createType2);

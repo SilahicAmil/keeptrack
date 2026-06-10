@@ -22,7 +22,7 @@ type AzureDevopsService struct {
 	isPolling   bool
 	stopPoll    context.CancelFunc
 	// ticketStore  *store.TicketStore
-	// prStore      *store.PRStore
+	// prStore *store.SQLiteStore
 	// pollInterval time.Duration
 
 }
@@ -50,6 +50,9 @@ func (s *AzureDevopsService) Start(ctx context.Context) {
 		fmt.Println("tickets", tickets)
 		app.Event.Emit("tickets-updated", tickets)
 
+		// Also fetch new PR updates. Don't worry about notifs for now
+		prs, _ := s.FetchPullRequests()
+		app.Event.Emit("prs-update", prs)
 	})
 }
 
@@ -153,12 +156,26 @@ func (s *AzureDevopsService) CheckAppState() (bool, error) {
 func (s *AzureDevopsService) OpenTicket(id int) {
 	app := application.Get()
 
-	fmt.Println("azurecfg", s.client.BaseURL)
-
 	ticketURL := fmt.Sprintf("%s/_workitems/edit/%d", s.client.BaseURL, id)
 	err := app.Browser.OpenURL(ticketURL)
 
 	if err != nil {
 		app.Logger.Error("failed to open link", "error", err)
 	}
+}
+
+func (s *AzureDevopsService) OpenPR(id int) {
+	app := application.Get()
+
+	ticketURL := fmt.Sprintf("%s/_git/%s/pullrequest/%d", s.client.BaseURL, s.client.CFG.Project, id)
+	err := app.Browser.OpenURL(ticketURL)
+
+	if err != nil {
+		app.Logger.Error("failed to open link", "error", err)
+	}
+}
+
+func (s *AzureDevopsService) FetchPullRequests() ([]models.PullRequest, error) {
+	fmt.Println("hit this ")
+	return s.client.FetchPullRequests()
 }
