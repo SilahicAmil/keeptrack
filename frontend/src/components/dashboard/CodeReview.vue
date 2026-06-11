@@ -2,6 +2,7 @@
 import { PullRequest } from "bindings/changeme/internal/services/models";
 import {
   FetchPullRequests,
+  FetchPullRequestsReviewer,
   OpenPR,
 } from "../../../bindings/changeme/internal/services/azuredevopsservice";
 import { Events } from "@wailsio/runtime";
@@ -17,6 +18,7 @@ const prsReviewer = ref<PullRequest[]>([]);
 
 onMounted(async () => {
   prs.value = await FetchPullRequests();
+  prsReviewer.value = await FetchPullRequestsReviewer();
 
   Events.On("prs-update", (event) => {
     const newPRs = event.data;
