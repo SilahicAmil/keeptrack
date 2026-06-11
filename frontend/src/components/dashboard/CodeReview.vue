@@ -9,7 +9,7 @@ import { Events } from "@wailsio/runtime";
 import { onMounted, ref, watch } from "vue";
 
 const prs = ref<PullRequest[]>([]);
-const prsReviewer = ref<PullRequest>([]);
+const prsReviewer = ref<PullRequest[]>([]);
 
 // defineProps<{
 //   prs: any[];
@@ -111,7 +111,7 @@ function OpenPullRequest(PRId: number) {
     <!-- Table Rows -->
     <div
       @click="OpenPullRequest(pr.ID)"
-      v-for="pr in prs"
+      v-for="pr in prsReviewer"
       :key="pr.ID"
       class="grid grid-cols-[120px_160px_1fr_80px_60px] items-center px-5 py-3 border-b border-slate-700/20 hover:bg-slate-800/30 transition cursor-pointer"
     >
