@@ -48,6 +48,15 @@ export function FetchPullRequests() {
 }
 
 /**
+ * @returns {$CancellablePromise<models$0.PullRequest[]>}
+ */
+export function FetchPullRequestsReviewer() {
+    return $Call.ByID(101163577).then(/** @type {($result: any) => any} */(($result) => {
+        return $$createType3($result);
+    }));
+}
+
+/**
  * @param {config$0.AzureCFG} cfg
  * @returns {$CancellablePromise<models$0.Ticket[]>}
  */

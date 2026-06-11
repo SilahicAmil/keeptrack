@@ -53,6 +53,9 @@ func (s *AzureDevopsService) Start(ctx context.Context) {
 		// Also fetch new PR updates. Don't worry about notifs for now
 		prs, _ := s.FetchPullRequests()
 		app.Event.Emit("prs-update", prs)
+
+		prsReviewer, _ := s.FetchPullRequestsReviewer()
+		app.Event.Emit("prs-reviwer", prsReviewer)
 	})
 }
 
@@ -177,4 +180,8 @@ func (s *AzureDevopsService) OpenPR(id int) {
 
 func (s *AzureDevopsService) FetchPullRequests() ([]models.PullRequest, error) {
 	return s.client.FetchPullRequests(s.currentUser.ID)
+}
+
+func (s *AzureDevopsService) FetchPullRequestsReviewer() ([]models.PullRequest, error) {
+	return s.client.FetchPullRequestsReviewer(s.currentUser.ID)
 }
