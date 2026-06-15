@@ -1,6 +1,7 @@
 package azuredevops
 
 import (
+	"changeme/internal/services/helpers"
 	"changeme/internal/services/models"
 	"encoding/json"
 	"fmt"
@@ -100,6 +101,9 @@ func (c *AzureDevopsClient) FetchPullRequestsReviewer(userID string) ([]models.P
 
 		reviewers := make([]models.Reviewers, 0, len(item.Reviewers))
 		for _, rev := range item.Reviewers {
+			if !helpers.ContainsAll(rev.DisplayName, "/", "[", "]") {
+				continue
+			}
 			reviewers = append(reviewers, models.Reviewers{
 				DisplayName: rev.DisplayName,
 				Vote:        rev.Vote,
