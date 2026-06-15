@@ -10,6 +10,9 @@ import (
 
 // Fetch PRs for ticket(s), reviewers, threads
 
+// TODO: DRY up this code. Maybe we just make one generic function
+// then pass in whether reviewer or not
+
 // Fetch ALL active PR's for the user
 func (c *AzureDevopsClient) FetchPullRequests(userID string) ([]models.PullRequest, error) {
 	// Get all PRs for now
