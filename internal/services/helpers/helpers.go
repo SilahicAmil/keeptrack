@@ -2,11 +2,11 @@ package helpers
 
 import "strings"
 
-func ContainsAll(main string, subs ...string) bool {
+func ContainsAny(main string, subs ...string) bool {
 	for _, sub := range subs {
-		if !strings.Contains(main, sub) {
-			return false
+		if strings.Contains(main, sub) {
+			return true
 		}
 	}
-	return true
+	return false
 }
