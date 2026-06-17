@@ -3,6 +3,7 @@ import { ref, onMounted } from "vue";
 import { Events } from "@wailsio/runtime";
 import {
   FetchAssignedTicketsCache,
+  FetchPullRequests,
   StartPolling,
 } from "../../bindings/changeme/internal/services/azuredevopsservice";
 import Navbar from "../components/ui/Navbar.vue";
@@ -10,6 +11,7 @@ import TabBar from "../components/dashboard/TabBar.vue";
 import WorkItemsTable from "../components/dashboard/WorkItemsTable.vue";
 import ActivityFeed from "../components/dashboard/ActivityFeed.vue";
 import { NotificationService } from "../../bindings/changeme/internal/services";
+import CodeReview from "@/components/dashboard/CodeReview.vue";
 
 const tickets = ref<any[]>([]);
 const notifiedAt = new Map<string, string>(); // ticket ID -> ChangedDate
@@ -105,12 +107,7 @@ onMounted(async () => {
 
           <WorkItemsTable v-if="activeTab === 'workItems'" :tickets="tickets" />
 
-          <div
-            v-if="activeTab === 'codeReviews'"
-            class="px-5 py-12 text-center text-slate-500 text-sm"
-          >
-            Code reviews coming soon.
-          </div>
+          <CodeReview v-if="activeTab === 'codeReviews'" />
 
           <ActivityFeed
             v-if="activeTab === 'activity'"

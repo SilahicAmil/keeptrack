@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Browser } from "@wailsio/runtime";
 import { AzureDevopsService } from "../../../bindings/changeme/internal/services";
 
 defineProps<{
@@ -34,7 +33,7 @@ function openTicket(ticketID: number) {
       <span class="text-sm text-slate-300 font-mono"
         >#&nbsp;{{ ticket.ID }}</span
       >
-      <span class="text-sm text-slate-200">{{ ticket.Title }}</span>
+      <span class="text-sm text-slate-200 truncate">{{ ticket.Title }}</span>
       <span class="text-sm text-slate-300 font-mono truncate">{{
         ticket.Description
       }}</span>

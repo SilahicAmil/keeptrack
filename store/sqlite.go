@@ -70,7 +70,9 @@ func (s *SQLiteStore) init() error {
 			org TEXT NOT NULL,
 			project TEXT NOT NULL,
 			email TEXT,
-			display_name TEXT)`,
+			display_name TEXT,
+			user_id TEXT
+			)`,
 		`
 	CREATE TABLE IF NOT EXISTS tickets (
 		id INTEGER PRIMARY KEY,
@@ -117,11 +119,13 @@ func (s *SQLiteStore) SaveUserToConfig(user *models.CurrentUser) error {
 	fmt.Println("user", user)
 	query := `
 		UPDATE config
-		SET email = ?, display_name = ?
+		SET email = ?, display_name = ?, user_id =?
 		WHERE id = 1
 	`
 
-	_, err := s.db.Exec(query, user.Email, user.DisplayName)
+	_, err := s.db.Exec(query, user.Email, user.DisplayName, user.ID)
+
+	s.SaveUser(user)
 	return err
 }
 
@@ -165,9 +169,9 @@ func (s *SQLiteStore) SaveTickets(tickets []models.Ticket) error {
 func (s *SQLiteStore) GetAppData() (config.AzureCFG, models.CurrentUser, error) {
 	// TODO: Get PAT from keyring
 	query := `
-	SELECT org, project, pat, display_name, email
-	FROM config
-	LIMIT 1
+		SELECT org, project, pat, display_name, email, user_id
+			FROM config
+		LIMIT 1
 	`
 
 	var cfg config.AzureCFG
@@ -179,6 +183,7 @@ func (s *SQLiteStore) GetAppData() (config.AzureCFG, models.CurrentUser, error) 
 		&cfg.PAT,
 		&user.DisplayName,
 		&user.Email,
+		&user.ID,
 	)
 
 	if err != nil {
